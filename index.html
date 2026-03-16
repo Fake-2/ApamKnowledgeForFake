@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Benedicta 💍</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --gold:      #e8c97a;
+  --gold-deep: #c9a84c;
+  --rose:      #d4607a;
+  --rose-light:#f2a4b5;
+  --cream:     #fdf6ee;
+  --dark:      #12080e;
+  --wine:      #4a0e20;
+  --ink:       #1e0e18;
+  --petal:     #f5c6d0;
+  --glow-gold: 0 0 12px #e8c97a88, 0 0 35px #c9a84c44;
+  --glow-rose: 0 0 12px #d4607a88, 0 0 35px #d4607a44;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:'Lora',serif;
+  overflow-x:hidden;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'%3E%3Cpath fill='%23e8c97a' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z'/%3E%3C/svg%3E"),auto;
+}
+
+/* ── CANVAS ── */
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── PETAL OVERLAY ── */
+.petal-layer{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.petal{
+  position:absolute;
+  top:-60px;
+  font-size:1.2rem;
+  opacity:0;
+  animation:petalFall linear infinite;
+}
+@keyframes petalFall{
+  0%{opacity:0;transform:translateY(-40px) rotate(0deg) scale(0.8)}
+  10%{opacity:0.7}
+  90%{opacity:0.4}
+  100%{opacity:0;transform:translateY(110vh) rotate(360deg) scale(0.5)}
+}
+
+/* ── LOCK ── */
+#lock{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%, #2a0b18 0%, #12080e 70%);
+  transition:opacity .9s ease,transform .9s ease;
+}
+#lock.out{opacity:0;transform:scale(1.06);pointer-events:none}
+
+.lock-card{
+  text-align:center;
+  padding:3.5rem 2.5rem;
+  max-width:420px;width:90%;
+  position:relative;
+  border:1px solid rgba(232,201,122,.25);
+  border-radius:24px;
+  background:rgba(255,255,255,0.025);
+  backdrop-filter:blur(24px);
+  overflow:hidden;
+}
+.lock-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(232,201,122,.06),rgba(212,96,122,.06));
+  pointer-events:none;
+}
+.lock-ring{
+  width:80px;height:80px;margin:0 auto 1.5rem;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--rose));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;
+  box-shadow:var(--glow-gold);
+  animation:ringPulse 2s ease-in-out infinite;
+}
+@keyframes ringPulse{0%,100%{box-shadow:var(--glow-gold)}50%{box-shadow:0 0 25px #e8c97acc,0 0 55px #c9a84c66}}
+.lock-title{
+  font-family:'Great Vibes',cursive;
+  font-size:2.6rem;
+  color:var(--gold);
+  text-shadow:var(--glow-gold);
+  margin-bottom:.4rem;
+}
+.lock-sub{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.9rem;color:rgba(253,246,238,.45);
+  letter-spacing:.08em;margin-bottom:2rem;line-height:1.7;
+}
+.lock-input{
+  width:100%;padding:.85rem 1.4rem;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(232,201,122,.3);border-radius:50px;
+  color:var(--cream);font-family:'Lora',serif;font-size:1rem;
+  text-align:center;letter-spacing:.12em;outline:none;
+  transition:all .3s;margin-bottom:1rem;
+}
+.lock-input:focus{border-color:var(--gold);box-shadow:var(--glow-gold);background:rgba(232,201,122,.04)}
+.lock-input.err{border-color:var(--rose);box-shadow:var(--glow-rose);animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.lock-btn{
+  width:100%;padding:.9rem;
+  background:linear-gradient(135deg,var(--gold-deep),var(--rose));
+  border:none;border-radius:50px;
+  color:#fff;font-family:'Great Vibes',cursive;font-size:1.5rem;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 20px rgba(212,96,122,.4);
+}
+.lock-btn:hover{transform:translateY(-2px);box-shadow:0 8px 35px rgba(212,96,122,.6)}
+.lock-msg{margin-top:.9rem;font-size:.88rem;min-height:1.2rem;font-style:italic;transition:all .3s}
+.lock-msg.e{color:var(--rose);text-shadow:var(--glow-rose)}
+.lock-msg.s{color:var(--gold);text-shadow:var(--glow-gold)}
+
+/* ── MAIN ── */
+#main{display:none;position:relative;z-index:2}
+#main.on{display:block}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:.9rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(18,8,14,.75);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(232,201,122,.12);
+}
+.nav-logo{font-family:'Great Vibes',cursive;font-size:1.7rem;color:var(--gold);text-shadow:var(--glow-gold)}
+.nav-links{display:flex;gap:2rem}
+.nav-links a{
+  color:rgba(253,246,238,.5);text-decoration:none;
+  font-family:'Lora',serif;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;
+  transition:all .3s;
+}
+.nav-links a:hover{color:var(--gold);text-shadow:var(--glow-gold)}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8rem 2rem 5rem;text-align:center;position:relative;
+}
+.hero-kicker{
+  font-family:'Lora',serif;font-style:italic;font-size:.85rem;
+  letter-spacing:.4em;text-transform:uppercase;
+  color:var(--gold);text-shadow:var(--glow-gold);
+  margin-bottom:1.8rem;
+  animation:fadeUp .9s ease .2s both;
+}
+.hero-title{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(3.5rem,11vw,8rem);
+  line-height:1.05;
+  color:var(--cream);
+  margin-bottom:1.5rem;
+  animation:fadeUp .9s ease .4s both;
+}
+.hero-title em{color:var(--gold);text-shadow:var(--glow-gold);font-style:normal}
+.hero-verse{
+  max-width:560px;
+  font-family:'Libre Baskerville',serif;font-style:italic;
+  font-size:clamp(.95rem,2vw,1.15rem);
+  line-height:2;color:rgba(253,246,238,.72);
+  animation:fadeUp .9s ease .6s both;
+  margin-bottom:3rem;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+.scroll-cue{
+  position:absolute;bottom:2.2rem;
+  font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(232,201,122,.35);
+  animation:bob 2.2s ease infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+
+/* ── DIVIDER ── */
+.orn-divider{
+  display:flex;align-items:center;gap:1rem;
+  max-width:500px;margin:3rem auto;
+}
+.orn-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-deep))}
+.orn-line.r{background:linear-gradient(90deg,var(--gold-deep),transparent)}
+.orn-center{color:var(--gold);font-size:1.2rem;text-shadow:var(--glow-gold)}
+
+/* ── HEARTS SECTION ── */
+#us{
+  padding:6rem 2rem;
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+}
+.section-eyebrow{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.8rem;letter-spacing:.4em;text-transform:uppercase;
+  color:var(--rose-light);margin-bottom:.6rem;text-align:center;
+}
+.section-heading{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(2.2rem,6vw,3.8rem);
+  text-align:center;
+  color:var(--gold);text-shadow:var(--glow-gold);
+  margin-bottom:3.5rem;
+}
+
+.hearts-duo{
+  display:flex;flex-wrap:wrap;gap:5rem;
+  justify-content:center;align-items:flex-start;
+}
+
+/* ── HEART PHOTO FRAME ── */
+.heart-unit{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
+.heart-wrap{position:relative;width:230px;height:215px}
+
+.heart-bg{
+  position:absolute;inset:0;
+  filter:drop-shadow(0 0 18px #d4607a99) drop-shadow(0 0 40px #e8c97a44);
+  animation:hglow 3s ease-in-out infinite;
+}
+@keyframes hglow{
+  0%,100%{filter:drop-shadow(0 0 18px #d4607a99) drop-shadow(0 0 40px #e8c97a44)}
+  50%{filter:drop-shadow(0 0 28px #d4607acc) drop-shadow(0 0 60px #e8c97a77)}
+}
+
+/* Heart using CSS clip-path on img */
+.heart-photo-clip{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-53%);
+  width:140px;height:140px;
+  object-fit:cover;object-position:top center;
+  clip-path:path('M70 120 C20 90 0 55 0 35 C0 15 15 0 35 0 C48 0 60 8 70 22 C80 8 92 0 105 0 C125 0 140 15 140 35 C140 55 120 90 70 120Z');
+  animation:hglow-img 3s ease-in-out infinite;
+}
+@keyframes hglow-img{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08) saturate(1.1)}}
+
+.heart-name{
+  font-family:'Great Vibes',cursive;
+  font-size:1.7rem;color:var(--gold);text-shadow:var(--glow-gold);
+}
+.heart-role{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.8rem;color:rgba(253,246,238,.4);
+  letter-spacing:.18em;
+}
+
+.connector{
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;color:var(--rose);
+  text-shadow:var(--glow-rose);
+  animation:hbeat 1.8s ease-in-out infinite;
+  align-self:center;
+}
+@keyframes hbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.22)}28%{transform:scale(1)}42%{transform:scale(1.15)}56%{transform:scale(1)}}
+
+/* ── POEM / CONFESSION ── */
+#poem{
+  padding:6rem 2rem;
+  max-width:760px;margin:0 auto;text-align:center;
+}
+.stanza{
+  font-family:'Libre Baskerville',serif;font-style:italic;
+  font-size:clamp(.95rem,2.2vw,1.15rem);
+  line-height:2.1;color:rgba(253,246,238,.78);
+  margin-bottom:2rem;
+}
+.stanza .g{color:var(--gold);text-shadow:var(--glow-gold);font-weight:700}
+.stanza .r{color:var(--rose-light);text-shadow:var(--glow-rose)}
+.big-line{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(2.2rem,7vw,5rem);
+  color:var(--rose);text-shadow:var(--glow-rose);
+  display:block;margin:2.5rem 0;
+  animation:roseGlow 3s ease-in-out infinite;
+}
+@keyframes roseGlow{0%,100%{text-shadow:var(--glow-rose)}50%{text-shadow:0 0 20px #d4607a,0 0 55px #d4607aaa}}
+
+/* ── PROPOSAL BOX ── */
+#proposal{
+  padding:5rem 2rem 6rem;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+}
+.proposal-ring{
+  font-size:4rem;margin-bottom:1.5rem;
+  animation:hbeat 1.8s ease-in-out infinite;
+}
+.proposal-q{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(2.5rem,8vw,5.5rem);
+  color:var(--gold);text-shadow:var(--glow-gold);
+  margin-bottom:3rem;line-height:1.2;
+}
+.proposal-note{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.9rem;color:rgba(253,246,238,.4);
+  letter-spacing:.1em;margin-bottom:2rem;
+}
+
+/* Reply card */
+.reply-card{
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(232,201,122,.25);
+  border-radius:24px;
+  padding:2.5rem 2rem;
+  max-width:520px;width:100%;
+  position:relative;overflow:hidden;
+}
+.reply-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top,rgba(232,201,122,.06),transparent 60%);
+  pointer-events:none;
+}
+.reply-label{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(232,201,122,.5);margin-bottom:1rem;display:block;
+}
+.reply-textarea{
+  width:100%;
+  min-height:120px;
+  padding:1rem 1.2rem;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(232,201,122,.2);
+  border-radius:16px;
+  color:var(--cream);
+  font-family:'Lora',serif;font-style:italic;
+  font-size:1rem;line-height:1.7;
+  outline:none;resize:vertical;
+  transition:all .3s;
+  margin-bottom:1.2rem;
+}
+.reply-textarea:focus{
+  border-color:var(--gold);
+  box-shadow:var(--glow-gold);
+  background:rgba(232,201,122,.04);
+}
+.reply-textarea::placeholder{color:rgba(253,246,238,.22)}
+
+.reply-btn{
+  width:100%;padding:.9rem;
+  background:linear-gradient(135deg,#25d366,#128c7e);
+  border:none;border-radius:50px;
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  font-family:'Great Vibes',cursive;font-size:1.4rem;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 20px rgba(37,211,102,.3);
+}
+.reply-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(37,211,102,.5)}
+.whatsapp-icon{font-size:1.3rem}
+
+.reply-hint{
+  margin-top:1rem;
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.78rem;color:rgba(253,246,238,.25);
+  letter-spacing:.08em;
+}
+
+/* ── MUSIC ── */
+#music{
+  padding:6rem 2rem;
+  max-width:720px;margin:0 auto;text-align:center;
+}
+.player-card{
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(232,201,122,.18);
+  border-radius:24px;
+  padding:2.5rem 2rem;
+  position:relative;overflow:hidden;
+  margin-top:2.5rem;
+}
+.player-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at bottom,rgba(212,96,122,.06),transparent 60%);
+  pointer-events:none;
+}
+.player-intro{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.88rem;color:rgba(253,246,238,.35);
+  margin-bottom:1.8rem;letter-spacing:.07em;
+}
+.track-list{list-style:none}
+.track-row{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem 1rem;border-radius:14px;
+  transition:all .3s;cursor:pointer;
+  border:1px solid transparent;
+  margin-bottom:.5rem;
+}
+.track-row:hover{background:rgba(232,201,122,.06);border-color:rgba(232,201,122,.12)}
+.track-row.playing{background:rgba(212,96,122,.08);border-color:rgba(212,96,122,.2)}
+.t-num{font-size:.8rem;color:rgba(253,246,238,.22);min-width:1.4rem;text-align:right;font-family:'Lora',serif}
+.t-btn{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold-deep),var(--rose));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:#fff;
+  box-shadow:0 0 14px rgba(232,201,122,.35);
+  transition:all .3s;
+}
+.t-btn:hover{transform:scale(1.1);box-shadow:0 0 28px rgba(232,201,122,.6)}
+.t-info{flex:1;text-align:left}
+.t-name{font-family:'Libre Baskerville',serif;font-size:.98rem;color:var(--cream)}
+.t-artist{font-family:'Lora',serif;font-style:italic;font-size:.82rem;color:rgba(253,246,238,.38);margin-top:.15rem}
+.t-dur{font-size:.78rem;color:rgba(253,246,238,.2);font-family:'Lora',serif}
+audio{display:none}
+
+/* ── FOOTER ── */
+footer{
+  padding:5rem 2rem;text-align:center;
+  border-top:1px solid rgba(232,201,122,.1);
+}
+.footer-em{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(1.8rem,5vw,3rem);
+  color:var(--gold);text-shadow:var(--glow-gold);
+  display:block;margin-bottom:1rem;
+}
+.footer-sig{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:.88rem;color:rgba(253,246,238,.28);
+  letter-spacing:.18em;line-height:2;
+}
+
+/* ── FLOAT PETALS SPAWNED BY JS ── */
+.fp{
+  position:fixed;pointer-events:none;
+  font-size:1.1rem;z-index:999;
+  animation:floatUp 3s ease forwards;
+}
+@keyframes floatUp{
+  0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+  100%{opacity:0;transform:translateY(-280px) rotate(40deg) scale(.3)}
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.reveal.shown{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hearts-duo{gap:2.5rem}
+  .connector{align-self:unset}
+}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<canvas id="starfield"></canvas>
+
+<!-- FALLING PETALS LAYER -->
+<div class="petal-layer" id="petals"></div>
+
+<!-- BACKGROUND AUDIO — Married Life -->
+<audio id="bg-audio" loop>
+  <source src="Married life.mp3" type="audio/mpeg">
+</audio>
+<audio id="track-audio"></audio>
+
+<!-- ════════════════════════════════
+     LOCK SCREEN
+════════════════════════════════ -->
+<div id="lock">
+  <div class="lock-card">
+    <div class="lock-ring">💍</div>
+    <div class="lock-title">A Letter Sealed With Love</div>
+    <p class="lock-sub">
+      This page holds something precious —<br/>
+      a heart bared open, waiting only for <em>you</em>.<br/>
+      Whisper the password to enter.
+    </p>
+    <input class="lock-input" id="pw" type="password" placeholder="Enter the password…" autocomplete="off"/>
+    <button class="lock-btn" onclick="tryUnlock()">Open ✦</button>
+    <div class="lock-msg" id="lock-msg"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════ -->
+<div id="main">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Benedicta ✦</div>
+    <div class="nav-links">
+      <a href="#us">Our Story</a>
+      <a href="#poem">My Heart</a>
+      <a href="#proposal">The Question</a>
+      <a href="#music">Our Songs</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <div class="hero-kicker">✦ A Confession Written in Gold ✦</div>
+    <h1 class="hero-title">
+      To <em>Benedicta</em>,<br/>
+      The One My Heart<br/>Chose
+    </h1>
+    <p class="hero-verse">
+      "Before I knew your name,<br/>
+      something in me already knew you —<br/>
+      the way the ocean knows the shore<br/>
+      long before the tide arrives."
+    </p>
+    <div class="orn-divider">
+      <span class="orn-line"></span>
+      <span class="orn-center">✦</span>
+      <span class="orn-line r"></span>
+    </div>
+    <span class="scroll-cue">scroll gently ↓</span>
+  </section>
+
+  <!-- ── US ── -->
+  <section id="us">
+    <div class="section-eyebrow">✦ Two Souls, One Constellation ✦</div>
+    <h2 class="section-heading">Where It All Lives</h2>
+
+    <div class="hearts-duo">
+
+      <!-- BENEDICTA -->
+      <div class="heart-unit reveal">
+        <div class="heart-wrap">
+          <svg class="heart-bg" viewBox="0 0 230 215" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="hgB" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#d4607a"/>
+                <stop offset="100%" stop-color="#e8c97a"/>
+              </linearGradient>
+            </defs>
+            <path d="M115 185 C45 150 8 105 8 68 C8 40 28 18 55 18 C76 18 98 32 115 52 C132 32 154 18 175 18 C202 18 222 40 222 68 C222 105 185 150 115 185Z"
+              fill="url(#hgB)" opacity="0.15"/>
+            <path d="M115 185 C45 150 8 105 8 68 C8 40 28 18 55 18 C76 18 98 32 115 52 C132 32 154 18 175 18 C202 18 222 40 222 68 C222 105 185 150 115 185Z"
+              fill="none" stroke="url(#hgB)" stroke-width="1.5"/>
+          </svg>
+          <img class="heart-photo-clip" src="ben.jpg" alt="Benedicta" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-53%);width:140px;height:125px;background:linear-gradient(135deg,rgba(212,96,122,.25),rgba(232,201,122,.25));border-radius:50% 50% 48% 48%;align-items:center;justify-content:center;font-size:.7rem;color:rgba(253,246,238,.4);text-align:center;line-height:1.6;padding:.8rem">📸<br/>Benedicta's<br/>Photo</div>
+        </div>
+        <div class="heart-name">Benedicta 💛</div>
+        <div class="heart-role">My Sunshine · My Reason</div>
+      </div>
+
+      <!-- CONNECTOR -->
+      <div class="connector">💍</div>
+
+      <!-- JOSEPH -->
+      <div class="heart-unit reveal">
+        <div class="heart-wrap">
+          <svg class="heart-bg" viewBox="0 0 230 215" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="hgJ" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e8c97a"/>
+                <stop offset="100%" stop-color="#d4607a"/>
+              </linearGradient>
+            </defs>
+            <path d="M115 185 C45 150 8 105 8 68 C8 40 28 18 55 18 C76 18 98 32 115 52 C132 32 154 18 175 18 C202 18 222 40 222 68 C222 105 185 150 115 185Z"
+              fill="url(#hgJ)" opacity="0.15"/>
+            <path d="M115 185 C45 150 8 105 8 68 C8 40 28 18 55 18 C76 18 98 32 115 52 C132 32 154 18 175 18 C202 18 222 40 222 68 C222 105 185 150 115 185Z"
+              fill="none" stroke="url(#hgJ)" stroke-width="1.5"/>
+          </svg>
+          <img class="heart-photo-clip" src="joe.jpg" alt="Joseph" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-53%);width:140px;height:125px;background:linear-gradient(135deg,rgba(232,201,122,.25),rgba(212,96,122,.25));border-radius:50% 50% 48% 48%;align-items:center;justify-content:center;font-size:.7rem;color:rgba(253,246,238,.4);text-align:center;line-height:1.6;padding:.8rem">📸<br/>Joseph's<br/>Photo</div>
+        </div>
+        <div class="heart-name" style="color:var(--rose-light);text-shadow:var(--glow-rose)">Joseph ✨</div>
+        <div class="heart-role">Her Devoted One · Always</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── POEM ── -->
+  <section id="poem">
+    <div class="section-eyebrow">✦ From the Quietest Corner of My Soul ✦</div>
+    <h2 class="section-heading">What My Heart Has Been Trying to Say</h2>
+
+    <p class="stanza reveal">
+      Benedicta — even your name sounds like a blessing.<br/>
+      Like something the universe whispered into existence<br/>
+      just to give <span class="g">beauty a name</span> it could finally wear.
+    </p>
+
+    <div class="orn-divider"><span class="orn-line"></span><span class="orn-center">✦</span><span class="orn-line r"></span></div>
+
+    <p class="stanza reveal">
+      I have watched the way you move through the world —<br/>
+      how your presence doesn't just fill a room,<br/>
+      it <span class="r">quietly rewrites it.</span><br/>
+      And I have been undone by it, every single time.
+    </p>
+
+    <p class="stanza reveal">
+      I am Joseph Nutsa, and I come to you<br/>
+      not with grand theatrics or borrowed words —<br/>
+      but with <span class="g">the most honest thing I have:</span><br/>
+      a heart that has chosen you, quietly and completely.
+    </p>
+
+    <span class="big-line reveal">I am in love with you.</span>
+
+    <p class="stanza reveal">
+      In love with the way you think.<br/>
+      In love with what you don't say out loud.<br/>
+      In love with the version of myself<br/>
+      that <span class="r">only seems to exist</span> when you're near.
+    </p>
+
+    <p class="stanza reveal">
+      I have spent time trying to talk myself out of this feeling —<br/>
+      and every time I failed, beautifully,<br/>
+      because <span class="g">some things are bigger than logic.</span><br/>
+      You are one of those things.
+    </p>
+
+    <p class="stanza reveal">
+      If you let me,<br/>
+      I will spend every ordinary Tuesday making you feel extraordinary.<br/>
+      I will be patient in the hard seasons.<br/>
+      I will <span class="r">celebrate every small version of you</span> — not just the bright ones.<br/>
+      I will be someone you can trust with the parts of yourself<br/>
+      you haven't shown the world yet.
+    </p>
+
+    <div class="orn-divider"><span class="orn-line"></span><span class="orn-center">✦</span><span class="orn-line r"></span></div>
+
+    <p class="stanza reveal" style="font-size:clamp(1rem,2.4vw,1.2rem)">
+      <em>"You are the poem I never knew I was writing.<br/>
+      The chapter I didn't plan but can't imagine skipping.<br/>
+      The answer to a question my heart had been asking<br/>
+      in <span class="g">the language of longing</span> — long before I found you."</em>
+    </p>
+
+    <div class="orn-divider"><span class="orn-line"></span><span class="orn-center">✦</span><span class="orn-line r"></span></div>
+
+    <p style="font-family:'Great Vibes',cursive;font-size:1.8rem;color:var(--gold);text-shadow:var(--glow-gold);margin-top:1rem">
+      — Joseph Nutsa
+    </p>
+    <p style="font-family:'Lora',serif;font-style:italic;font-size:.8rem;color:rgba(253,246,238,.28);letter-spacing:.2em;margin-top:.4rem">
+      Written with a full heart · For Benedicta · Forever
+    </p>
+  </section>
+
+  <!-- ── PROPOSAL ── -->
+  <section id="proposal">
+    <div class="proposal-ring">💍</div>
+    <div class="section-eyebrow">✦ The Question That Changes Everything ✦</div>
+    <h2 class="proposal-q">
+      Benedicta Akolgo,<br/>
+      Will You Be<br/>My Girlfriend?
+    </h2>
+
+    <p class="proposal-note reveal">
+      Take all the time you need — and when you're ready,<br/>
+      send me your answer below. My heart is listening. 🌹
+    </p>
+
+    <div class="reply-card reveal">
+      <span class="reply-label">✦ Benedicta's Reply ✦</span>
+      <textarea
+        class="reply-textarea"
+        id="reply-text"
+        placeholder="Dear Joseph, my answer is… (write anything in your heart 💛)"
+        rows="5"
+      ></textarea>
+      <button class="reply-btn" onclick="sendReply()">
+        <span class="whatsapp-icon">💬</span>
+        Send My Answer on WhatsApp
+      </button>
+      <p class="reply-hint">Your reply will open WhatsApp directly to Joseph 💛</p>
+    </div>
+  </section>
+
+  <!-- ── MUSIC ── -->
+  <section id="music">
+    <div class="section-eyebrow">✦ The Soundtrack of My Feelings ✦</div>
+    <h2 class="section-heading">Songs That Speak What I Cannot</h2>
+    <div class="player-card reveal">
+      <p class="player-intro">🎵 Every melody here is something I felt while thinking of you, Benedicta.</p>
+      <ul class="track-list">
+        <li class="track-row" data-src="Perfect.mp3">
+          <span class="t-num">01</span>
+          <button class="t-btn" onclick="playTrack(this)">▶</button>
+          <div class="t-info">
+            <div class="t-name">Perfect</div>
+            <div class="t-artist">Ed Sheeran</div>
+          </div>
+        </li>
+        <li class="track-row" data-src="Lonely.mp3">
+          <span class="t-num">02</span>
+          <button class="t-btn" onclick="playTrack(this)">▶</button>
+          <div class="t-info">
+            <div class="t-name">Lonely</div>
+            <div class="t-artist">Akon</div>
+          </div>
+        </li>
+        <li class="track-row" data-src="Had to leave.mp3">
+          <span class="t-num">03</span>
+          <button class="t-btn" onclick="playTrack(this)">▶</button>
+          <div class="t-info">
+            <div class="t-name">Had to Leave</div>
+            <div class="t-artist">Babytakeoff</div>
+          </div>
+        </li>
+        <li class="track-row" data-src="Falling.mp3">
+          <span class="t-num">04</span>
+          <button class="t-btn" onclick="playTrack(this)">▶</button>
+          <div class="t-info">
+            <div class="t-name">Falling</div>
+            <div class="t-artist">Madara Dusal</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-em">Always Yours, Joseph ✦</span>
+    <p class="footer-sig">
+      Joseph Nutsa · For Benedicta Akolgo · With Every Heartbeat<br/>
+      ✦ Because you deserve to be chosen, loudly and every single day ✦
+    </p>
+  </footer>
+
+</div><!-- /main -->
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+// ── PASSWORD ──
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') tryUnlock() });
+
+function tryUnlock(){
+  const pw = document.getElementById('pw').value.trim().toLowerCase();
+  const msg = document.getElementById('lock-msg');
+  const inp = document.getElementById('pw');
+  if(pw === 'love is blind'){
+    msg.textContent = '💛 Welcome, Benedicta… this was made just for you.';
+    msg.className = 'lock-msg s';
+    setTimeout(()=>{
+      document.getElementById('lock').classList.add('out');
+      setTimeout(()=>{
+        document.getElementById('lock').style.display = 'none';
+        document.getElementById('main').classList.add('on');
+        startBg();
+        burstPetals(30);
+        initReveal();
+      }, 900);
+    }, 1100);
+  } else {
+    msg.textContent = '🌹 That\'s not quite right, my love… try again.';
+    msg.className = 'lock-msg e';
+    inp.classList.add('err');
+    setTimeout(()=>inp.classList.remove('err'), 500);
+    inp.value = '';
+  }
+}
+
+// ── BG AUDIO ──
+function startBg(){
+  const a = document.getElementById('bg-audio');
+  a.volume = 0.3;
+  a.play().catch(()=>{});
+}
+
+// ── TRACK PLAYER ──
+let activeBtn = null;
+function playTrack(btn){
+  const row = btn.closest('li');
+  const src = row.dataset.src;
+  const audio = document.getElementById('track-audio');
+  document.querySelectorAll('.track-row').forEach(r=>r.classList.remove('playing'));
+  if(activeBtn && activeBtn !== btn){ activeBtn.textContent='▶'; }
+  if(audio.src.endsWith(encodeURIComponent(src)) && !audio.paused){
+    audio.pause(); btn.textContent='▶'; activeBtn=null;
+  } else {
+    audio.src = src; audio.loop = true; audio.volume = 0.85;
+    audio.play().catch(()=>{});
+    btn.textContent='⏸'; activeBtn=btn;
+    row.classList.add('playing');
+  }
+}
+
+// ── WHATSAPP REPLY ──
+function sendReply(){
+  const text = document.getElementById('reply-text').value.trim();
+  if(!text){ 
+    document.getElementById('reply-text').style.borderColor='var(--rose)';
+    document.getElementById('reply-text').placeholder='Please write your reply first, Benedicta 💛';
+    setTimeout(()=>{ document.getElementById('reply-text').style.borderColor=''; }, 1500);
+    return;
+  }
+  const phone = '233544030402';
+  const msg = encodeURIComponent('💍 Joseph, my answer is:\n\n' + text + '\n\n— Benedicta 💛');
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+}
+
+// ── PETALS ──
+function burstPetals(n){
+  const symbols = ['🌸','🌹','💛','🌺','✨','💕','🌼'];
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='fp';
+      el.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+      el.style.left=Math.random()*100+'vw';
+      el.style.bottom='-2rem';
+      el.style.fontSize=(0.7+Math.random()*1.4)+'rem';
+      el.style.animationDuration=(2.5+Math.random()*2.5)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),5500);
+    },i*120);
+  }
+}
+document.addEventListener('click', e=>{
+  if(!document.getElementById('main').classList.contains('on')) return;
+  const el=document.createElement('div');
+  el.className='fp';
+  el.textContent=['💛','🌹','💍','🌸'][Math.floor(Math.random()*4)];
+  el.style.left=(e.clientX-10)+'px';
+  el.style.top=(e.clientY-10)+'px';
+  el.style.position='fixed';
+  el.style.animationDuration='2s';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2200);
+});
+
+// ── FALLING PETALS BG ──
+(function(){
+  const container=document.getElementById('petals');
+  const p=['🌸','🌺','🌼','💮'];
+  function spawn(){
+    const el=document.createElement('div');
+    el.className='petal';
+    el.textContent=p[Math.floor(Math.random()*p.length)];
+    el.style.left=Math.random()*100+'vw';
+    el.style.fontSize=(.6+Math.random()*.8)+'rem';
+    el.style.animationDuration=(6+Math.random()*8)+'s';
+    el.style.animationDelay='0s';
+    container.appendChild(el);
+    setTimeout(()=>el.remove(),(14+Math.random()*8)*1000);
+  }
+  setInterval(spawn,900);
+})();
+
+// ── STARFIELD ──
+(function(){
+  const c=document.getElementById('starfield');
+  const ctx=c.getContext('2d');
+  let W,H,stars;
+  function resize(){ W=c.width=innerWidth; H=c.height=innerHeight; init(); }
+  window.addEventListener('resize',resize); resize();
+  function init(){
+    stars=[];
+    const n=Math.floor(W*H/3500);
+    const cols=['#e8c97a','#fdf6ee','#f2a4b5','#d4607a','#ffffff'];
+    for(let i=0;i<n;i++) stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*.9+.1,
+      dx:(Math.random()-.5)*.15, dy:(Math.random()-.5)*.15,
+      a:Math.random()*.5+.05,
+      c:cols[Math.floor(Math.random()*cols.length)],
+      tw:Math.random()*Math.PI*2, ts:.005+Math.random()*.01
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.tw+=s.ts;
+      const alpha=s.a*(0.5+0.5*Math.sin(s.tw));
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=s.c;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+      s.x+=s.dx; s.y+=s.dy;
+      if(s.x<0)s.x=W; if(s.x>W)s.x=0;
+      if(s.y<0)s.y=H; if(s.y>H)s.y=0;
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── SCROLL REVEAL ──
+function initReveal(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('shown'); });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}
+</script>
+</body>
+</html>

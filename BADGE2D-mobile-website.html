@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>BADGE2D Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:       #060608;
+  --surface:  #0d0d12;
+  --card:     #111118;
+  --border:   rgba(255,107,0,0.18);
+  --border2:  rgba(255,255,255,0.06);
+  --accent:   #ff6b00;
+  --accent2:  #ff9a40;
+  --text:     #e8e8f0;
+  --muted:    #666680;
+  --dim:      #2a2a38;
+  --green:    #39ff14;
+  --cyan:     #00d4ff;
+  --purple:   #7b2fff;
+  --r:        12px;
+  --r-sm:     6px;
+}
+html,body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Space Mono',monospace;
+  font-size:14px;
+  line-height:1.6;
+  min-height:100dvh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px;}
+
+/* ═══════════════════════════════════════════════════════════
+   NOISE OVERLAY
+═══════════════════════════════════════════════════════════ */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:0.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCAN LINES
+═══════════════════════════════════════════════════════════ */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:9998;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER / NAV
+═══════════════════════════════════════════════════════════ */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,6,8,0.88);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;
+}
+.nav-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:18px;
+  letter-spacing:-0.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-logo span.badge{
+  background:var(--accent);
+  color:#000;
+  font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:3px;
+  letter-spacing:0.5px;
+}
+.nav-links{display:flex;gap:4px;}
+.nav-links a{
+  padding:6px 10px;border-radius:var(--r-sm);
+  font-size:12px;color:var(--muted);
+  transition:color .2s,background .2s;
+}
+.nav-links a:hover,.nav-links a.active{
+  color:var(--accent);background:rgba(255,107,0,0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════ */
+.hero{
+  padding:60px 20px 48px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero-glow{
+  position:absolute;
+  top:-60px;left:50%;transform:translateX(-50%);
+  width:340px;height:340px;
+  background:radial-gradient(ellipse,rgba(255,107,0,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-tag{
+  display:inline-block;
+  border:1px solid var(--border);
+  background:rgba(255,107,0,0.06);
+  color:var(--accent);
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  padding:4px 12px;border-radius:20px;
+  margin-bottom:20px;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:clamp(36px,10vw,64px);
+  line-height:1.05;
+  letter-spacing:-2px;
+  margin-bottom:8px;
+}
+.hero h1 em{
+  font-style:normal;
+  -webkit-text-stroke:1px var(--accent);
+  color:transparent;
+}
+.hero-sub{
+  font-size:13px;color:var(--muted);
+  max-width:300px;margin:0 auto 32px;
+  line-height:1.7;
+}
+.hero-badges{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  margin-bottom:32px;
+}
+.badge-pill{
+  background:var(--card);
+  border:1px solid var(--border2);
+  color:var(--muted);
+  font-size:11px;padding:4px 10px;border-radius:20px;
+}
+.badge-pill.hi{border-color:var(--border);color:var(--accent);}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:13px 24px;border-radius:var(--r);
+  font-family:'Space Mono',monospace;
+  font-size:13px;font-weight:700;
+  letter-spacing:0.3px;
+  transition:all .2s;
+  -webkit-user-select:none;user-select:none;
+}
+.btn-primary{
+  background:var(--accent);color:#000;
+}
+.btn-primary:active{background:var(--accent2);transform:scale(0.97);}
+.btn-secondary{
+  background:var(--card);color:var(--text);
+  border:1px solid var(--border2);
+}
+.btn-secondary:active{background:var(--dim);transform:scale(0.97);}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION
+═══════════════════════════════════════════════════════════ */
+section{padding:0 16px 48px;}
+.section-label{
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::before{content:'';width:20px;height:1px;background:var(--accent);}
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:24px;
+  letter-spacing:-0.5px;
+  margin-bottom:20px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DEMO SECTION — CANVAS
+═══════════════════════════════════════════════════════════ */
+.demo-section{padding:0 16px 48px;}
+.demo-tabs{
+  display:flex;gap:6px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin-bottom:16px;
+  scrollbar-width:none;
+}
+.demo-tabs::-webkit-scrollbar{display:none;}
+.demo-tab{
+  flex:none;
+  padding:8px 16px;
+  border-radius:var(--r-sm);
+  font-size:12px;font-weight:700;
+  letter-spacing:0.5px;
+  background:var(--card);
+  border:1px solid var(--border2);
+  color:var(--muted);
+  transition:all .2s;
+  white-space:nowrap;
+}
+.demo-tab.active{
+  background:var(--accent);color:#000;
+  border-color:var(--accent);
+}
+.demo-tab:active{transform:scale(0.95);}
+
+.canvas-wrapper{
+  position:relative;
+  border-radius:var(--r);
+  overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--surface);
+  aspect-ratio:9/14;
+  max-height:70dvh;
+  touch-action:none;
+}
+@media(min-height:700px){.canvas-wrapper{aspect-ratio:9/16;}}
+#gameCanvas{
+  display:block;
+  width:100%;height:100%;
+  touch-action:none;
+}
+.canvas-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:12px;
+  background:rgba(6,6,8,0.7);
+  backdrop-filter:blur(4px);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s;
+}
+.canvas-overlay.show{opacity:1;pointer-events:auto;}
+.canvas-loading-text{
+  font-size:13px;color:var(--muted);
+  animation:pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+
+.demo-hint{
+  margin-top:10px;
+  font-size:11px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  text-align:center;
+}
+.demo-hint span{color:var(--accent);}
+
+/* ═══════════════════════════════════════════════════════════
+   PHASE CARDS
+═══════════════════════════════════════════════════════════ */
+.phases-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(min-width:480px){.phases-grid{grid-template-columns:repeat(3,1fr);}}
+.phase-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:16px 14px;
+  transition:border-color .2s,transform .15s;
+  position:relative;
+  overflow:hidden;
+}
+.phase-card::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--accent);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s ease;
+}
+.phase-card:hover::after,.phase-card:active::after{transform:scaleX(1);}
+.phase-card:hover{border-color:var(--border);}
+.phase-num{
+  font-size:11px;color:var(--accent);
+  font-weight:700;letter-spacing:1px;
+  margin-bottom:4px;
+}
+.phase-name{
+  font-family:'Syne',sans-serif;
+  font-weight:700;font-size:14px;
+  margin-bottom:4px;
+}
+.phase-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* ═══════════════════════════════════════════════════════════
+   CODE BLOCK
+═══════════════════════════════════════════════════════════ */
+.code-block{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+.code-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border2);
+  background:rgba(255,255,255,0.02);
+}
+.code-lang{font-size:11px;color:var(--accent);letter-spacing:1px;}
+.code-copy{
+  font-size:11px;color:var(--muted);
+  padding:4px 8px;border-radius:4px;
+  background:var(--card);border:1px solid var(--border2);
+  transition:all .2s;
+}
+.code-copy:active{color:var(--accent);}
+pre{
+  padding:16px;
+  overflow-x:auto;
+  font-size:12px;
+  line-height:1.7;
+  color:#c9d1d9;
+  scrollbar-width:thin;
+}
+pre .k{color:#ff7b72;}
+pre .s{color:#a5d6ff;}
+pre .c{color:#8b949e;font-style:italic;}
+pre .n{color:#d2a8ff;}
+pre .v{color:#ffa657;}
+
+/* ═══════════════════════════════════════════════════════════
+   FEATURE ROW
+═══════════════════════════════════════════════════════════ */
+.features-list{display:flex;flex-direction:column;gap:12px;}
+.feature-item{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:16px;
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+}
+.feature-icon{
+  width:38px;height:38px;flex:none;
+  background:rgba(255,107,0,0.1);
+  border:1px solid rgba(255,107,0,0.2);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.feature-text h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.feature-text p{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* ═══════════════════════════════════════════════════════════
+   STAT ROW
+═══════════════════════════════════════════════════════════ */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;margin-bottom:48px;
+}
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:16px 12px;
+  text-align:center;
+}
+.stat-val{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:22px;
+  color:var(--accent);line-height:1;
+  margin-bottom:4px;
+}
+.stat-label{font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+
+/* ═══════════════════════════════════════════════════════════
+   TERMINAL TICKER
+═══════════════════════════════════════════════════════════ */
+.ticker-wrap{
+  background:rgba(255,107,0,0.04);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;height:34px;
+  display:flex;align-items:center;
+  margin:0 -16px 40px;
+}
+.ticker-inner{
+  display:flex;gap:60px;
+  white-space:nowrap;
+  animation:ticker 22s linear infinite;
+  padding-left:100%;
+}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ticker-item{
+  font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;
+}
+.ticker-item::before{content:'▸ ';}
+
+/* ═══════════════════════════════════════════════════════════
+   DOWNLOAD / CTA
+═══════════════════════════════════════════════════════════ */
+.cta-box{
+  background:linear-gradient(135deg,rgba(255,107,0,0.12),rgba(123,47,255,0.08));
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:28px 20px;
+  text-align:center;
+}
+.cta-box h3{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:20px;
+  margin-bottom:8px;
+}
+.cta-box p{font-size:12px;color:var(--muted);margin-bottom:20px;}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════ */
+footer{
+  border-top:1px solid var(--border2);
+  padding:24px 16px 40px;
+  padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:16px;
+}
+.footer-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:16px;
+  color:var(--muted);
+}
+.footer-links{
+  display:flex;gap:16px;flex-wrap:wrap;
+}
+.footer-links a{font-size:11px;color:var(--muted);transition:color .2s;}
+.footer-links a:hover{color:var(--accent);}
+.footer-copy{font-size:11px;color:var(--dim);}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE TRANSITIONS
+═══════════════════════════════════════════════════════════ */
+.page{display:none;}
+.page.active{display:block;}
+main.active{display:block;}
+
+/* ═══════════════════════════════════════════════════════════
+   ENTRY ANIMATION
+═══════════════════════════════════════════════════════════ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+.anim{animation:fadeUp .5s ease both;}
+.anim-1{animation-delay:.05s;}
+.anim-2{animation-delay:.1s;}
+.anim-3{animation-delay:.15s;}
+.anim-4{animation-delay:.2s;}
+.anim-5{animation-delay:.25s;}
+
+/* ═══════════════════════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════════════════════ */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+  margin:0 0 40px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav class="nav">
+  <div class="nav-logo">
+    BADGE2D <span class="badge">v10</span>
+  </div>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="showPage('home',this)">Home</a>
+    <a href="#" onclick="showPage('demo',this)">Play</a>
+    <a href="#" onclick="showPage('docs',this)">Docs</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE: HOME ═══════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-tag anim">GAME ENGINE · PYTHON · JS · C#</div>
+    <h1 class="anim anim-1">BADGE<em>2D</em></h1>
+    <p class="hero-sub anim anim-2">Basic Atlas Dimensional Game Engine — 10 phases from raw math to a full editor.</p>
+    <div class="hero-badges anim anim-3">
+      <span class="badge-pill hi">Phase 10</span>
+      <span class="badge-pill">ECS World</span>
+      <span class="badge-pill">Physics SAT</span>
+      <span class="badge-pill">Sprites</span>
+      <span class="badge-pill">Anim FSM</span>
+      <span class="badge-pill">UI Canvas</span>
+      <span class="badge-pill">Editor</span>
+    </div>
+    <div class="hero-btns anim anim-4">
+      <button class="btn btn-primary" onclick="showPage('demo', document.querySelector('.nav-links a:nth-child(2)'))">▶ Try Demo</button>
+      <button class="btn btn-secondary" onclick="showPage('docs', document.querySelector('.nav-links a:nth-child(3)'))">Read Docs</button>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      <span class="ticker-item">Math · ECS · Renderer</span>
+      <span class="ticker-item">Physics · Input · Audio</span>
+      <span class="ticker-item">Animation FSM</span>
+      <span class="ticker-item">Scene Manager</span>
+      <span class="ticker-item">Asset Pipeline</span>
+      <span class="ticker-item">UI Framework</span>
+      <span class="ticker-item">Editor + Gizmos</span>
+      <span class="ticker-item">Math · ECS · Renderer</span>
+      <span class="ticker-item">Physics · Input · Audio</span>
+      <span class="ticker-item">Animation FSM</span>
+      <span class="ticker-item">Scene Manager</span>
+      <span class="ticker-item">Asset Pipeline</span>
+      <span class="ticker-item">UI Framework</span>
+      <span class="ticker-item">Editor + Gizmos</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <section>
+    <div class="stats-row anim anim-2">
+      <div class="stat-card"><div class="stat-val">10</div><div class="stat-label">Phases</div></div>
+      <div class="stat-card"><div class="stat-val">3</div><div class="stat-label">Languages</div></div>
+      <div class="stat-card"><div class="stat-val">~15k</div><div class="stat-label">Lines</div></div>
+    </div>
+
+    <!-- PHASES GRID -->
+    <div class="section-label anim">Architecture</div>
+    <h2 class="section-title anim anim-1">10 Phases,<br>Zero Dependencies</h2>
+    <div class="phases-grid">
+      <div class="phase-card anim anim-1">
+        <div class="phase-num">01</div>
+        <div class="phase-name">Math</div>
+        <div class="phase-desc">Vector2, Color, Rect2D, Matrix4, MathUtils</div>
+      </div>
+      <div class="phase-card anim anim-2">
+        <div class="phase-num">02</div>
+        <div class="phase-name">ECS</div>
+        <div class="phase-desc">Entity, World, ComponentStore, ISystem</div>
+      </div>
+      <div class="phase-card anim anim-3">
+        <div class="phase-num">03</div>
+        <div class="phase-name">Renderer</div>
+        <div class="phase-desc">SpriteBatch, Camera2D, GL/Canvas</div>
+      </div>
+      <div class="phase-card anim anim-4">
+        <div class="phase-num">04</div>
+        <div class="phase-name">Physics</div>
+        <div class="phase-desc">SAT collision, impulse resolution</div>
+      </div>
+      <div class="phase-card anim anim-5">
+        <div class="phase-num">05</div>
+        <div class="phase-name">Input</div>
+        <div class="phase-desc">Keyboard, mouse, touch, gamepad</div>
+      </div>
+      <div class="phase-card anim anim-1">
+        <div class="phase-num">06</div>
+        <div class="phase-name">Audio</div>
+        <div class="phase-desc">Mixer, AudioClip, spatial rolloff</div>
+      </div>
+      <div class="phase-card anim anim-2">
+        <div class="phase-num">07</div>
+        <div class="phase-name">Animation</div>
+        <div class="phase-desc">AnimStateMachine, cross-fade, FSM</div>
+      </div>
+      <div class="phase-card anim anim-3">
+        <div class="phase-num">08</div>
+        <div class="phase-name">Scene</div>
+        <div class="phase-desc">SceneManager, Prefab, transitions</div>
+      </div>
+      <div class="phase-card anim anim-4">
+        <div class="phase-num">09</div>
+        <div class="phase-name">UI</div>
+        <div class="phase-desc">9 widgets, anchor layout, UICanvas</div>
+      </div>
+      <div class="phase-card anim anim-5">
+        <div class="phase-num">10</div>
+        <div class="phase-name">Editor</div>
+        <div class="phase-desc">Panels, gizmos, undo/redo stack</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section>
+    <div class="section-label">Highlights</div>
+    <h2 class="section-title">Built for Real<br>Game Dev</h2>
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <h4>Batched Rendering</h4>
+          <p>10,000 sprites per draw call. moderngl on desktop, Canvas 2D on web/mobile.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎮</div>
+        <div class="feature-text">
+          <h4>Touch-Native Input</h4>
+          <p>Virtual joystick, multi-touch, ActionMap bindings. Works first-class on mobile.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-text">
+          <h4>Cross-Language</h4>
+          <p>Same architecture in C++20, C#/.NET 8, Python 3.11, and JavaScript. Pick your runtime.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🧩</div>
+        <div class="feature-text">
+          <h4>ECS World</h4>
+          <p>Generation-indexed entities, typed component stores, generator-based queries.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <section>
+    <div class="cta-box">
+      <h3>Try It Live</h3>
+      <p>Physics sandbox, platformer, and particle demo. Runs entirely in your browser.</p>
+      <button class="btn btn-primary" onclick="showPage('demo', document.querySelector('.nav-links a:nth-child(2)'))">▶ Launch Demos</button>
+    </div>
+  </section>
+
+</div><!-- /page-home -->
+
+
+<!-- ═══════════════ PAGE: DEMO ═══════════════ -->
+<div id="page-demo" class="page">
+
+  <div style="padding:20px 16px 12px;">
+    <div class="section-label">Interactive</div>
+    <h2 class="section-title" style="margin-bottom:12px;">Live Demos</h2>
+
+    <div class="demo-tabs">
+      <button class="demo-tab active" onclick="switchDemo('physics',this)">⬛ Physics</button>
+      <button class="demo-tab" onclick="switchDemo('platformer',this)">🏃 Platformer</button>
+      <button class="demo-tab" onclick="switchDemo('particles',this)">✨ Particles</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="gameCanvas"></canvas>
+      <div class="canvas-overlay" id="canvasOverlay">
+        <div class="canvas-loading-text">Initializing engine…</div>
+      </div>
+    </div>
+
+    <p class="demo-hint" id="demoHint">
+      <span>TAP</span> canvas to spawn objects &nbsp;·&nbsp; <span>DRAG</span> left for joystick
+    </p>
+  </div>
+
+</div><!-- /page-demo -->
+
+
+<!-- ═══════════════ PAGE: DOCS ═══════════════ -->
+<div id="page-docs" class="page">
+  <div style="padding:20px 16px 40px;">
+    <div class="section-label">Documentation</div>
+    <h2 class="section-title">Quick Reference</h2>
+
+    <!-- Quick start -->
+    <div style="margin-bottom:28px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">Quick Start (JS)</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JAVASCRIPT</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">// 1. Create engine + scene</span>
+<span class="k">const</span> engine = <span class="k">new</span> <span class="n">Engine</span>(canvas);
+<span class="k">const</span> scene  = <span class="k">new</span> <span class="n">Scene</span>(<span class="s">'Level1'</span>);
+scene.load(<span class="k">new</span> <span class="n">Vector2</span>(<span class="v">0</span>, <span class="v">900</span>));
+
+<span class="c">// 2. Create an entity</span>
+<span class="k">const</span> e = scene.createEntity(<span class="s">'Player'</span>, <span class="v">0</span>, <span class="v">0</span>);
+<span class="k">const</span> sp = <span class="k">new</span> <span class="n">Sprite</span>();
+sp.w = <span class="v">32</span>; sp.h = <span class="v">32</span>;
+sp.color = Color.fromHex(<span class="s">'#ff6b00'</span>);
+scene.world.add(e, sp);
+
+<span class="c">// 3. Update loop</span>
+engine.onUpdate = (dt) => {
+  <span class="k">const</span> ax = engine.input.getAxis(
+    <span class="s">'ArrowLeft'</span>, <span class="s">'ArrowRight'</span>);
+  <span class="c">// move player...</span>
+};
+
+engine.loadScene(scene);
+engine.start();</pre>
+      </div>
+    </div>
+
+    <!-- ECS -->
+    <div style="margin-bottom:28px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">ECS World</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JAVASCRIPT</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">const</span> world = <span class="k">new</span> <span class="n">World</span>();
+
+<span class="c">// Add components</span>
+<span class="k">const</span> e = world.create(<span class="s">'Box'</span>);
+world.add(e, <span class="k">new</span> <span class="n">Transform</span>(<span class="v">100</span>, <span class="v">200</span>));
+world.add(e, <span class="k">new</span> <span class="n">Sprite</span>());
+
+<span class="c">// Query — generator, zero alloc</span>
+<span class="k">for</span> (<span class="k">const</span> [e, tr, sp]
+  <span class="k">of</span> world.each(Transform, Sprite)) {
+  tr.x += <span class="v">1</span>; <span class="c">// move right</span>
+}
+
+<span class="c">// Destroy</span>
+world.destroy(e);</pre>
+      </div>
+    </div>
+
+    <!-- Physics -->
+    <div style="margin-bottom:28px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">Physics</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">JAVASCRIPT</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">const</span> rb = <span class="k">new</span> <span class="n">Rigidbody</span>(<span class="s">'dynamic'</span>);
+rb.w = <span class="v">40</span>; rb.h = <span class="v">40</span>;
+rb.restitution = <span class="v">0.5</span>;
+
+scene.addPhysicsBody(e, rb);
+
+<span class="c">// Apply impulse</span>
+rb.vx = <span class="v">200</span>; rb.vy = <span class="v">-400</span>;
+
+<span class="c">// Collision callback</span>
+scene.physWorld.onCollision
+  .push((ea, eb) => {
+    console.log(<span class="s">'hit!'</span>, ea, eb);
+  });</pre>
+      </div>
+    </div>
+
+    <!-- Python comparison -->
+    <div style="margin-bottom:28px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">Python Port</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">PYTHON</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">from</span> badge2d <span class="k">import</span> Application, Scene
+<span class="k">from</span> badge2d <span class="k">import</span> Vector2, Color
+
+<span class="k">class</span> <span class="n">MyGame</span>(Application):
+  <span class="k">def</span> on_init(self):
+    scene = Scene()
+    scene.load(Vector2(<span class="v">0</span>, <span class="v">900</span>))
+    self.load_scene(<span class="s">"level1"</span>)
+
+  <span class="k">def</span> on_update(self, dt):
+    move = self.input.get_wasd()
+    <span class="c"># dt-scaled movement</span>
+    ...
+
+MyGame(width=<span class="v">1280</span>, height=<span class="v">720</span>).run()</pre>
+      </div>
+    </div>
+
+    <!-- Lang comparison table -->
+    <div style="margin-bottom:32px;">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">Language Comparison</h3>
+      <div style="overflow-x:auto;border-radius:var(--r);border:1px solid var(--border2);">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:var(--card);">
+              <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--border2);">Feature</th>
+              <th style="padding:10px 12px;text-align:center;color:var(--accent);border-bottom:1px solid var(--border2);">JS</th>
+              <th style="padding:10px 12px;text-align:center;color:var(--muted);border-bottom:1px solid var(--border2);">Python</th>
+              <th style="padding:10px 12px;text-align:center;color:var(--muted);border-bottom:1px solid var(--border2);">C#</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border2);">
+              <td style="padding:9px 12px;color:var(--muted);">Renderer</td>
+              <td style="padding:9px 12px;text-align:center;">Canvas 2D</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">moderngl</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">Silk.NET</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border2);">
+              <td style="padding:9px 12px;color:var(--muted);">Audio</td>
+              <td style="padding:9px 12px;text-align:center;">WebAudio</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">pygame.mixer</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">NAudio</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border2);">
+              <td style="padding:9px 12px;color:var(--muted);">ECS Query</td>
+              <td style="padding:9px 12px;text-align:center;">Generator</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">yield</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">IEnumerable</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 12px;color:var(--muted);">Mobile</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--green);">✓ Native</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">Desktop</td>
+              <td style="padding:9px 12px;text-align:center;color:var(--muted);">Desktop</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-docs -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">BADGE2D</div>
+  <div class="footer-links">
+    <a href="#" onclick="showPage('home',document.querySelector('.nav-links a'))">Home</a>
+    <a href="#" onclick="showPage('demo',document.querySelector('.nav-links a:nth-child(2)'))">Play</a>
+    <a href="#" onclick="showPage('docs',document.querySelector('.nav-links a:nth-child(3)'))">Docs</a>
+  </div>
+  <div class="footer-copy">Basic Atlas Dimensional Game Engine 2D · v10.0</div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ENGINE JS (inlined)
+═══════════════════════════════════════════════════════════ -->
+<script>
+/* ── BADGE2D CORE ENGINE ── */
+class Vector2{constructor(x=0,y=0){this.x=x;this.y=y;}static zero(){return new Vector2(0,0);}static one(){return new Vector2(1,1);}static up(){return new Vector2(0,-1);}static right(){return new Vector2(1,0);}add(v){return new Vector2(this.x+v.x,this.y+v.y);}sub(v){return new Vector2(this.x-v.x,this.y-v.y);}mul(s){return typeof s==='number'?new Vector2(this.x*s,this.y*s):new Vector2(this.x*s.x,this.y*s.y);}div(s){return new Vector2(this.x/s,this.y/s);}copy(){return new Vector2(this.x,this.y);}get length(){return Math.sqrt(this.x*this.x+this.y*this.y);}get normalized(){const n=this.length;return n>1e-6?this.div(n):Vector2.zero();}static lerp(a,b,t){return new Vector2(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t);}static distance(a,b){return a.sub(b).length;}set(x,y){this.x=x;this.y=y;return this;}}
+
+class Color{constructor(r=1,g=1,b=1,a=1){this.r=r;this.g=g;this.b=b;this.a=a;}static white(){return new Color(1,1,1);}static black(){return new Color(0,0,0);}static fromHex(h){h=h.replace('#','');const r=parseInt(h.slice(0,2),16)/255,g=parseInt(h.slice(2,4),16)/255,b=parseInt(h.slice(4,6),16)/255,a=h.length===8?parseInt(h.slice(6,8),16)/255:1;return new Color(r,g,b,a);}withAlpha(a){return new Color(this.r,this.g,this.b,a);}lerp(o,t){return new Color(this.r+(o.r-this.r)*t,this.g+(o.g-this.g)*t,this.b+(o.b-this.b)*t,this.a+(o.a-this.a)*t);}toCSS(){return`rgba(${Math.round(this.r*255)},${Math.round(this.g*255)},${Math.round(this.b*255)},${this.a.toFixed(3)})`;}toHex(){const h=v=>Math.round(v*255).toString(16).padStart(2,'0');return`#${h(this.r)}${h(this.g)}${h(this.b)}`;}}
+
+const MathUtils={clamp:(v,lo,hi)=>Math.max(lo,Math.min(hi,v)),lerp:(a,b,t)=>a+(b-a)*t,randRange:(lo,hi)=>lo+Math.random()*(hi-lo),randInt:(lo,hi)=>Math.floor(lo+Math.random()*(hi-lo+1)),};
+
+let _eid=1;
+class Entity{constructor(id){this.id=id;this.alive=true;this.name='';}}
+class World{constructor(){this._e=new Map();this._c=new Map();this._sys=[];this._die=[];}create(n='E'){const e=new Entity(_eid++);e.name=n;this._e.set(e.id,e);return e;}destroy(e){this._die.push(e.id);}flush(){for(const id of this._die){for(const m of this._c.values())m.delete(id);const e=this._e.get(id);if(e)e.alive=false;this._e.delete(id);}this._die.length=0;}add(e,c){const t=c.constructor;if(!this._c.has(t))this._c.set(t,new Map());this._c.get(t).set(e.id,c);return c;}remove(e,T){this._c.get(T)?.delete(e.id);}has(e,T){return this._c.get(T)?.has(e.id)??false;}get(e,T){return this._c.get(T)?.get(e.id);}*each(...types){if(!types.length){yield*this._e.values();return;}const[first,...rest]=types;const store=this._c.get(first);if(!store)return;for(const[id,c]of store){const e=this._e.get(id);if(!e||!e.alive)continue;const o=rest.map(t=>this._c.get(t)?.get(id));if(o.every(x=>x!==undefined))yield[e,c,...o];}}addSystem(s){this._sys.push(s);return s;}update(dt){this.flush();for(const s of this._sys)s.onUpdate?.(this,dt);}fixedUpdate(dt){for(const s of this._sys)s.onFixedUpdate?.(this,dt);}render(r){for(const s of this._sys)s.onRender?.(this,r);}clear(){this._e.clear();this._c.clear();this._sys.length=0;}}
+
+class Transform{constructor(x=0,y=0,r=0,sx=1,sy=1){this.x=x;this.y=y;this.rotation=r;this.scaleX=sx;this.scaleY=sy;}}
+class Sprite{constructor(){this.w=32;this.h=32;this.color=Color.white();this.visible=true;this.layer=0;this.shape='rect';this.alpha=1;}}
+class Rigidbody{constructor(type='dynamic'){this.type=type;this.vx=0;this.vy=0;this.ax=0;this.ay=0;this.mass=1;this.invMass=type==='static'?0:1;this.restitution=0.35;this.friction=0.5;this.w=32;this.h=32;this.shape='box';this.radius=16;}}
+class Tag{constructor(t){this.tag=t;}}
+
+class Camera2D{constructor(){this.x=0;this.y=0;this.zoom=1;}worldToScreen(wx,wy,vw,vh){return{x:(wx-this.x)*this.zoom+vw/2,y:(wy-this.y)*this.zoom+vh/2};}screenToWorld(sx,sy,vw,vh){return{x:(sx-vw/2)/this.zoom+this.x,y:(sy-vh/2)/this.zoom+this.y};}}
+
+class Renderer2D{constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.cam=new Camera2D();this.bg=new Color(0.04,0.04,0.06);this.w=canvas.width;this.h=canvas.height;}resize(w,h){this.canvas.width=w;this.canvas.height=h;this.w=w;this.h=h;}begin(){this.ctx.fillStyle=this.bg.toCSS();this.ctx.fillRect(0,0,this.w,this.h);}end(){}applyCamera(ctx){ctx.translate(this.w/2,this.h/2);ctx.scale(this.cam.zoom,this.cam.zoom);ctx.translate(-this.cam.x,-this.cam.y);}drawAll(world){const all=[];for(const[e,sp]of world.each(Sprite)){const tr=world.get(e,Transform);if(tr)all.push({e,sp,tr});}all.sort((a,b)=>a.sp.layer-b.sp.layer);for(const{e,sp,tr}of all)this.drawEntity(e,tr,sp);}drawEntity(e,tr,sp){if(!sp.visible)return;const ctx=this.ctx;ctx.save();this.applyCamera(ctx);ctx.translate(tr.x,tr.y);ctx.rotate(tr.rotation);ctx.scale(tr.scaleX,tr.scaleY);ctx.globalAlpha=sp.alpha;if(sp.shape==='circle'){ctx.beginPath();ctx.arc(0,0,sp.w/2,0,Math.PI*2);ctx.fillStyle=sp.color.toCSS();ctx.fill();}else{ctx.fillStyle=sp.color.toCSS();ctx.fillRect(-sp.w/2,-sp.h/2,sp.w,sp.h);}ctx.globalAlpha=1;ctx.restore();}line(ax,ay,bx,by,col,t=1){const ctx=this.ctx;ctx.save();this.applyCamera(ctx);ctx.strokeStyle=col.toCSS();ctx.lineWidth=t;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.restore();}stext(txt,x,y,col,font='12px "Space Mono"',align='left'){const ctx=this.ctx;ctx.fillStyle=col.toCSS();ctx.font=font;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(txt,x,y);}}
+
+class PhysicsWorld{constructor(gx=0,gy=900){this.gx=gx;this.gy=gy;this.bodies=[];this.onCollision=[];this.iters=6;}addBody(e,rb,tr){this.bodies.push({e,rb,tr});}removeBody(e){this.bodies=this.bodies.filter(b=>b.e!==e);}step(dt){for(const{rb,tr}of this.bodies){if(rb.type==='static')continue;rb.vx+=(this.gx+rb.ax)*dt;rb.vy+=(this.gy+rb.ay)*dt;rb.vx*=0.998;rb.vy*=0.998;tr.x+=rb.vx*dt;tr.y+=rb.vy*dt;rb.ax=0;rb.ay=0;}const ms=[];for(let i=0;i<this.bodies.length;i++)for(let j=i+1;j<this.bodies.length;j++){const a=this.bodies[i],b=this.bodies[j];if(a.rb.type==='static'&&b.rb.type==='static')continue;const m=this._det(a,b);if(m)ms.push(m);}for(let k=0;k<this.iters;k++)for(const m of ms)this._rv(m);for(const m of ms)this._rp(m);for(const m of ms)for(const cb of this.onCollision)cb(m.a.e,m.b.e);}_aabb(b){const{rb,tr}=b;return rb.shape==='circle'?{x:tr.x-rb.radius,y:tr.y-rb.radius,w:rb.radius*2,h:rb.radius*2,cx:tr.x,cy:tr.y}:{x:tr.x-rb.w/2,y:tr.y-rb.h/2,w:rb.w,h:rb.h,cx:tr.x,cy:tr.y};}_det(a,b){const aa=this._aabb(a),ba=this._aabb(b);if(a.rb.shape==='circle'&&b.rb.shape==='circle'){const dx=b.tr.x-a.tr.x,dy=b.tr.y-a.tr.y,d=Math.sqrt(dx*dx+dy*dy),rs=a.rb.radius+b.rb.radius;if(d>=rs)return null;const n=d>1e-6?{x:dx/d,y:dy/d}:{x:1,y:0};return{a,b,nx:n.x,ny:n.y,pen:rs-d};}const ox=Math.min(aa.x+aa.w,ba.x+ba.w)-Math.max(aa.x,ba.x);const oy=Math.min(aa.y+aa.h,ba.y+ba.h)-Math.max(aa.y,ba.y);if(ox<=0||oy<=0)return null;if(ox<oy){const nx=b.tr.x>a.tr.x?1:-1;return{a,b,nx,ny:0,pen:ox};}else{const ny=b.tr.y>a.tr.y?1:-1;return{a,b,nx:0,ny,pen:oy};}}_rv(m){const{a,b,nx,ny}=m;const rvx=b.rb.vx-a.rb.vx,rvy=b.rb.vy-a.rb.vy;const vn=rvx*nx+rvy*ny;if(vn>0)return;const e=Math.min(a.rb.restitution,b.rb.restitution);const inv=a.rb.invMass+b.rb.invMass;if(inv<1e-10)return;const j=-(1+e)*vn/inv;if(a.rb.type!=='static'){a.rb.vx-=j*a.rb.invMass*nx;a.rb.vy-=j*a.rb.invMass*ny;}if(b.rb.type!=='static'){b.rb.vx+=j*b.rb.invMass*nx;b.rb.vy+=j*b.rb.invMass*ny;}}_rp(m){const{a,b,nx,ny,pen}=m;const corr=Math.max(pen-0.5,0)/(a.rb.invMass+b.rb.invMass+1e-10)*0.6;if(a.rb.type!=='static'){a.tr.x-=corr*a.rb.invMass*nx;a.tr.y-=corr*a.rb.invMass*ny;}if(b.rb.type!=='static'){b.tr.x+=corr*b.rb.invMass*nx;b.tr.y+=corr*b.rb.invMass*ny;}}}
+
+class InputManager{constructor(canvas){this._k=new Set();this._pk=new Set();this._mb=new Set();this._pmb=new Set();this._mx=0;this._my=0;this._scroll=0;this._touches=new Map();window.addEventListener('keydown',e=>{this._k.add(e.code);});window.addEventListener('keyup',e=>this._k.delete(e.code));const rect=()=>canvas.getBoundingClientRect();const toCanvas=(cx,cy)=>{const r=rect();return{x:(cx-r.left)*(canvas.width/r.width),y:(cy-r.top)*(canvas.height/r.height)};};canvas.addEventListener('mousemove',e=>{const p=toCanvas(e.clientX,e.clientY);this._mx=p.x;this._my=p.y;});canvas.addEventListener('mousedown',e=>{this._mb.add(e.button);engine.audio.resume();});canvas.addEventListener('mouseup',e=>this._mb.delete(e.button));canvas.addEventListener('wheel',e=>{this._scroll+=e.deltaY;e.preventDefault();},{passive:false});canvas.addEventListener('touchstart',e=>{e.preventDefault();engine.audio.resume();for(const t of e.changedTouches){const p=toCanvas(t.clientX,t.clientY);this._touches.set(t.identifier,{x:p.x,y:p.y,id:t.identifier});}},{passive:false});canvas.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){const p=toCanvas(t.clientX,t.clientY);const existing=this._touches.get(t.identifier);if(existing){existing.x=p.x;existing.y=p.y;}}},{passive:false});canvas.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)this._touches.delete(t.identifier);},{passive:false});}update(){this._pk=new Set(this._k);this._pmb=new Set(this._mb);this._scroll=0;}isKey(c){return this._k.has(c);}isKeyPressed(c){return this._k.has(c)&&!this._pk.has(c);}isMouseDown(b=0){return this._mb.has(b);}isMousePressed(b=0){return this._mb.has(b)&&!this._pmb.has(b);}get mouseX(){return this._mx;}get mouseY(){return this._my;}get scrollY(){return this._scroll;}getTouches(){return[...this._touches.values()];}get touchCount(){return this._touches.size;}getAxis(neg,pos){return(this._k.has(pos)?1:0)-(this._k.has(neg)?1:0);}getWASD(){return{x:this.getAxis('KeyA','KeyD'),y:this.getAxis('KeyW','KeyS')};}}
+
+class AudioManager{constructor(){try{this._ac=new(window.AudioContext||window.webkitAudioContext)();this._mg=this._ac.createGain();this._mg.gain.value=0.4;this._mg.connect(this._ac.destination);}catch(e){this._ac=null;}}resume(){if(this._ac?.state==='suspended')this._ac.resume();}tone(freq=440,dur=0.1,type='sine',vol=0.3){if(!this._ac)return;const o=this._ac.createOscillator();const g=this._ac.createGain();o.connect(g);g.connect(this._mg);o.frequency.value=freq;o.type=type;g.gain.setValueAtTime(vol,this._ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,this._ac.currentTime+dur);o.start();o.stop(this._ac.currentTime+dur);}resume(){if(this._ac?.state==='suspended')this._ac.resume();}playJump(){this.tone(300,0.12,'sine',0.2);setTimeout(()=>this.tone(420,0.08,'sine',0.15),60);}playLand(){this.tone(100,0.08,'triangle',0.15);}playPop(){this.tone(800,0.05,'sine',0.2);}playBounce(speed=1){this.tone(MathUtils.lerp(150,500,MathUtils.clamp(speed/600,0,1)),0.07,'square',0.1);}}
+
+class VirtualJoystick{constructor(bx,by,r=52){this.bx=bx;this.by=by;this.r=r;this.sx=bx;this.sy=by;this.dx=0;this.dy=0;this.active=false;this.tid=null;}feed(touches,cw){if(!this.active){for(const t of touches){if(t.x<cw*0.5){this.active=true;this.tid=t.id;break;}}}if(this.active){const t=touches.find(x=>x.id===this.tid);if(t){const dx=t.x-this.bx,dy=t.y-this.by;const len=Math.sqrt(dx*dx+dy*dy);const cap=Math.min(len,this.r);const a=Math.atan2(dy,dx);this.sx=this.bx+Math.cos(a)*cap;this.sy=this.by+Math.sin(a)*cap;this.dx=Math.cos(a)*(cap/this.r);this.dy=Math.sin(a)*(cap/this.r);}else{this.active=false;this.tid=null;this.sx=this.bx;this.sy=this.by;this.dx=0;this.dy=0;}}}draw(ctx){ctx.save();ctx.globalAlpha=0.35;ctx.strokeStyle='#ff6b00';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(this.bx,this.by,this.r,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(this.bx,this.by,3,0,Math.PI*2);ctx.fillStyle='rgba(255,107,0,0.3)';ctx.fill();ctx.fillStyle='#ff6b00';ctx.beginPath();ctx.arc(this.sx,this.sy,this.r*0.38,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.restore();}}
+
+// Engine coordinator
+class Engine{constructor(canvas){this.canvas=canvas;this.renderer=new Renderer2D(canvas);this.input=new InputManager(canvas);this.audio=new AudioManager();this._scene=null;this._running=false;this._last=0;this._acc=0;this.fixedDt=1/60;this.onUpdate=null;this.onRender=null;this.fps=0;this._fa=0;this._ff=0;}loadScene(s){this._scene=s;}get scene(){return this._scene;}start(){this._running=true;this._last=performance.now();requestAnimationFrame(t=>this._loop(t));}stop(){this._running=false;}_loop(now){if(!this._running)return;const raw=(now-this._last)/1000;this._last=now;const dt=Math.min(raw,0.05);this._fa+=dt;this._ff++;if(this._fa>=0.5){this.fps=Math.round(this._ff/this._fa);this._fa=0;this._ff=0;}this.input.update();this._acc+=dt;while(this._acc>=this.fixedDt){this._scene?.world.fixedUpdate(this.fixedDt);this._acc-=this.fixedDt;}this._scene?.world.update(dt);this.onUpdate?.(dt);this.renderer.begin();this.renderer.drawAll(this._scene?.world||new World());this._scene?.world.render(this.renderer);this.onRender?.(this.renderer,dt);this.renderer.end();requestAnimationFrame(t=>this._loop(t));}}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP JS
+═══════════════════════════════════════════════════════════ -->
+<script>
+// ── Page routing ───────────────────────────────────────────
+function showPage(name, linkEl) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  window.scrollTo(0,0);
+
+  if (name === 'demo' && !engineStarted) {
+    setTimeout(initEngine, 100);
+  }
+}
+
+// ── Code copy ─────────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText || pre.textContent;
+  navigator.clipboard?.writeText(text).then(()=>{
+    btn.textContent='✓ copied';
+    setTimeout(()=>btn.textContent='copy',1500);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ENGINE SETUP
+// ═══════════════════════════════════════════════════════════
+let engine = null;
+let engineStarted = false;
+let currentDemo = 'physics';
+
+function initEngine() {
+  if (engineStarted) return;
+  engineStarted = true;
+
+  const canvas = document.getElementById('gameCanvas');
+  const wrapper = canvas.parentElement;
+
+  // Size canvas to wrapper
+  function resize() {
+    const rect = wrapper.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+    if (engine) {
+      engine.renderer.w = canvas.width;
+      engine.renderer.h = canvas.height;
+    }
+  }
+  resize();
+
+  engine = new Engine(canvas);
+
+  // Scale ctx for DPR
+  const dpr = window.devicePixelRatio || 1;
+  if (dpr !== 1) {
+    engine.renderer.ctx.scale(dpr, dpr);
+    // Wrap begin to re-apply scale
+    const origBegin = engine.renderer.begin.bind(engine.renderer);
+    engine.renderer.begin = function() {
+      origBegin();
+      // scale is reset by fillRect clear — reapply
+    };
+  }
+
+  // Handle resize
+  const ro = new ResizeObserver(resize);
+  ro.observe(wrapper);
+
+  loadDemo('physics');
+
+  document.getElementById('canvasOverlay').classList.remove('show');
+  engine.start();
+}
+
+// ─────────────────────────────────────────────────────────
+// PHYSICS DEMO
+// ─────────────────────────────────────────────────────────
+function loadPhysicsDemo() {
+  const r = engine.renderer;
+  const W = r.canvas.width / (window.devicePixelRatio||1);
+  const H = r.canvas.height / (window.devicePixelRatio||1);
+
+  const world = new World();
+  const phys  = new PhysicsWorld(0, 750);
+  engine._scene = { world, physWorld: phys };
+
+  const COLORS = ['#ff4500','#ff8c00','#ffd700','#39ff14','#00d4ff','#7b2fff','#ff2d6f','#ff6b00'];
+  let spawnCount = 0;
+
+  function makeStatic(x, y, w, h) {
+    const e = world.create('wall');
+    world.add(e, new Transform(x, y));
+    const rb = new Rigidbody('static'); rb.w=w; rb.h=h; rb.restitution=0.3;
+    phys.addBody(e, rb, world.get(e, Transform));
+    world.add(e, rb);
+    const sp = new Sprite(); sp.w=w; sp.h=h; sp.color=Color.fromHex('#0d1a0d'); sp.layer=0;
+    world.add(e, sp);
+  }
+
+  makeStatic(W/2, H - 14, W*2, 28);         // floor
+  makeStatic(-10, H/2,    20,  H*4);          // left wall
+  makeStatic(W+10, H/2,   20,  H*4);          // right wall
+
+  // Two platforms
+  makeStatic(W*0.25, H*0.62, W*0.3, 14);
+  makeStatic(W*0.72, H*0.45, W*0.28, 14);
+  makeStatic(W*0.5,  H*0.28, W*0.36, 14);
+
+  function spawnObject(wx, wy) {
+    engine.audio.playPop();
+    const e = world.create('obj');
+    const rb = new Rigidbody('dynamic');
+    const isCircle = Math.random() > 0.55;
+    rb.vx = MathUtils.randRange(-120, 120);
+    rb.vy = MathUtils.randRange(-80, 40);
+    rb.restitution = MathUtils.randRange(0.25, 0.65);
+    const sz = MathUtils.randRange(18, 42);
+    if (isCircle) { rb.shape='circle'; rb.radius=sz/2; }
+    else { rb.w=sz; rb.h=sz; }
+    const tr = new Transform(wx, wy);
+    world.add(e, tr);
+    phys.addBody(e, rb, tr);
+    world.add(e, rb);
+    const sp = new Sprite();
+    const hex = COLORS[spawnCount++ % COLORS.length];
+    sp.color = Color.fromHex(hex);
+    sp.w = rb.w || rb.radius*2;
+    sp.h = rb.h || rb.radius*2;
+    sp.shape = isCircle ? 'circle' : 'rect';
+    sp.layer = 2;
+    world.add(e, sp);
+  }
+
+  // Spawn initial cluster
+  for (let i=0; i<12; i++) {
+    spawnObject(
+      MathUtils.randRange(W*0.15, W*0.85),
+      MathUtils.randRange(H*0.05, H*0.35)
+    );
+  }
+
+  phys.onCollision.push(() => {
+    if (Math.random() < 0.08) engine.audio.playBounce(120);
+  });
+
+  let lastSpawn = 0;
+
+  engine.onUpdate = (dt) => {
+    // Step physics manually
+    phys.step(dt);
+
+    const now = performance.now()/1000;
+    const inp = engine.input;
+    const scW = r.canvas.width / (window.devicePixelRatio||1);
+    const scH = r.canvas.height / (window.devicePixelRatio||1);
+
+    function screenToWorld(sx, sy) {
+      return { x: (sx - scW/2)/r.cam.zoom + r.cam.x, y: (sy - scH/2)/r.cam.zoom + r.cam.y };
+    }
+
+    if (inp.isMousePressed(0) && now-lastSpawn>0.12) {
+      const wp = screenToWorld(inp.mouseX, inp.mouseY);
+      spawnObject(wp.x, wp.y);
+      lastSpawn = now;
+    }
+    for (const t of inp.getTouches()) {
+      if (now-lastSpawn>0.18) {
+        const wp = screenToWorld(t.x, t.y);
+        spawnObject(wp.x, wp.y);
+        lastSpawn = now;
+      }
+    }
+
+    // Cull fallen
+    for (const [e, rb, tr] of world.each(Rigidbody, Transform)) {
+      if (rb.type !== 'static' && tr.y > H * 1.8) {
+        phys.removeBody(e);
+        world.destroy(e);
+      }
+    }
+  };
+
+  engine.onRender = (renderer, dt) => {
+    const scW = renderer.canvas.width / (window.devicePixelRatio||1);
+    let bodyCount=0;
+    for(const _ of world.each(Rigidbody)) bodyCount++;
+    renderer.stext(`BODIES  ${bodyCount}`, 12, 28, Color.fromHex('#ff6b0099'), '11px "Space Mono"');
+    renderer.stext(`FPS  ${engine.fps}`, 12, 44, Color.fromHex('#444460'), '11px "Space Mono"');
+    renderer.stext('TAP TO SPAWN', scW/2, scW < 300 ? 18 : 22, Color.fromHex('#333345'), '10px "Space Mono"', 'center');
+  };
+
+  // Center camera
+  engine.renderer.cam.x = W/2;
+  engine.renderer.cam.y = H/2;
+  engine.renderer.cam.zoom = 1;
+  engine.renderer.bg = new Color(0.03, 0.03, 0.05);
+}
+
+// ─────────────────────────────────────────────────────────
+// PLATFORMER DEMO
+// ─────────────────────────────────────────────────────────
+function loadPlatformerDemo() {
+  const r = engine.renderer;
+  const W = r.canvas.width / (window.devicePixelRatio||1);
+  const H = r.canvas.height / (window.devicePixelRatio||1);
+
+  const world = new World();
+  const phys  = new PhysicsWorld(0, 780);
+  engine._scene = { world, physWorld: phys };
+
+  engine.renderer.bg = new Color(0.05, 0.07, 0.12);
+
+  function makePlat(x, y, w, h, col='#0a200a') {
+    const e = world.create('plat');
+    const tr = new Transform(x, y);
+    world.add(e, tr);
+    const rb = new Rigidbody('static'); rb.w=w; rb.h=h; rb.restitution=0.05;
+    phys.addBody(e, rb, tr);
+    world.add(e, rb);
+    const sp = new Sprite(); sp.w=w; sp.h=h; sp.color=Color.fromHex(col);
+    world.add(e, sp);
+  }
+
+  // Level layout (relative to W/H)
+  const GW = W, GH = H;
+  makePlat(GW/2, GH-14, GW*2.5, 28, '#0a1f0a');            // floor
+  makePlat(-10,  GH/2,  20, GH*4,   '#0a0a14');             // left wall
+  makePlat(GW+10, GH/2, 20, GH*4,   '#0a0a14');             // right wall
+  makePlat(GW*0.28, GH*0.75, GW*0.4, 12, '#122212');
+  makePlat(GW*0.70, GH*0.60, GW*0.36, 12, '#122212');
+  makePlat(GW*0.35, GH*0.46, GW*0.3, 12, '#162816');
+  makePlat(GW*0.72, GH*0.32, GW*0.3, 12, '#162816');
+  makePlat(GW*0.20, GH*0.20, GW*0.34, 12, '#1a3a1a');
+  makePlat(GW*0.55, GH*0.10, GW*0.4, 12, '#1f4a1f');
+
+  // Coins
+  let score = 0;
+  const coinPositions = [
+    [GW*0.28, GH*0.68], [GW*0.70, GH*0.53], [GW*0.35, GH*0.39],
+    [GW*0.72, GH*0.25], [GW*0.20, GH*0.13], [GW*0.55, GH*0.03],
+  ];
+  for (const [cx,cy] of coinPositions) {
+    const e = world.create('coin');
+    world.add(e, new Transform(cx, cy));
+    const sp = new Sprite(); sp.w=12; sp.h=12; sp.shape='circle'; sp.color=Color.fromHex('#ffd700'); sp.layer=3;
+    world.add(e, sp);
+    world.add(e, new Tag('coin'));
+  }
+
+  // Player
+  const playerE = world.create('player');
+  const playerTr = new Transform(GW*0.15, GH*0.82);
+  world.add(playerE, playerTr);
+  const playerRb = new Rigidbody('dynamic');
+  playerRb.w=22; playerRb.h=36; playerRb.restitution=0; playerRb.friction=1;
+  phys.addBody(playerE, playerRb, playerTr);
+  world.add(playerE, playerRb);
+  const playerSp = new Sprite(); playerSp.w=22; playerSp.h=36; playerSp.color=Color.fromHex('#4a9eff'); playerSp.layer=4;
+  world.add(playerE, playerSp);
+
+  // Virtual joystick
+  const joy = new VirtualJoystick(64, H - 80, 46);
+  let wasJumping = false;
+
+  function isGrounded() {
+    const py = playerTr.y + playerRb.h/2;
+    for (const [e, rb, tr] of world.each(Rigidbody, Transform)) {
+      if (rb.type !== 'static') continue;
+      const top = tr.y - rb.h/2;
+      const hw  = rb.w/2 + 2;
+      if (Math.abs(playerTr.x - tr.x) < hw && Math.abs(py - top) < 6 && playerRb.vy >= -2) return true;
+    }
+    return false;
+  }
+
+  // Coin bounce anim
+  let coinTime = 0;
+
+  engine.onUpdate = (dt) => {
+    phys.step(dt);
+    coinTime += dt;
+
+    const inp = engine.input;
+    const touches = inp.getTouches().map((t,i)=>({...t,id:i}));
+    joy.feed(touches, W);
+
+    // Input
+    const kbH = inp.getAxis('ArrowLeft','ArrowRight') || inp.getAxis('KeyA','KeyD');
+    const hIn  = kbH !== 0 ? kbH : joy.dx;
+    const grounded = isGrounded();
+
+    playerRb.vx = hIn * 210;
+
+    // Flip color for direction feel
+    if (hIn < -0.1)      playerSp.color = Color.fromHex('#4a9eff');
+    else if (hIn > 0.1)  playerSp.color = Color.fromHex('#7ab8ff');
+
+    // Jump: keyboard or right half tap
+    const jumpK = inp.isKeyPressed('Space')||inp.isKeyPressed('ArrowUp')||inp.isKeyPressed('KeyW');
+    const jumpT = touches.some(t => t.x > W*0.55);
+    if ((jumpK || (jumpT && !wasJumping)) && grounded) {
+      playerRb.vy = -550;
+      engine.audio.playJump();
+    }
+    wasJumping = jumpT;
+
+    // Squash/stretch
+    if (!grounded && playerRb.vy < -50) { playerSp.scaleX=0.8; playerSp.scaleY=1.25; }
+    else if (!grounded && playerRb.vy > 50) { playerSp.scaleX=1.1; playerSp.scaleY=0.9; }
+    else { playerSp.scaleX=1; playerSp.scaleY=1; }
+
+    // Coin collect
+    for (const [e, tag] of world.each(Tag)) {
+      if (tag.tag !== 'coin') continue;
+      const ct = world.get(e, Transform);
+      if (!ct) continue;
+      const dx = playerTr.x - ct.x, dy = playerTr.y - ct.y;
+      if (dx*dx+dy*dy < 500) { world.destroy(e); score++; engine.audio.playPop(); }
+    }
+
+    // Death respawn
+    if (playerTr.y > H*1.5) {
+      playerTr.x = GW*0.15; playerTr.y = GH*0.82;
+      playerRb.vx=0; playerRb.vy=0;
+    }
+
+    // Camera follow
+    const targetY = playerTr.y - H*0.35;
+    r.cam.x = MathUtils.lerp(r.cam.x, W/2, dt*3);
+    r.cam.y = MathUtils.lerp(r.cam.y, targetY + H/2, dt*4);
+  };
+
+  engine.onRender = (renderer, dt) => {
+    const ctx = renderer.ctx;
+    const scW = renderer.canvas.width / (window.devicePixelRatio||1);
+    const scH = renderer.canvas.height / (window.devicePixelRatio||1);
+
+    // Animate coins
+    for (const [e, tag] of world.each(Tag)) {
+      if (tag.tag !== 'coin') continue;
+      const sp = world.get(e, Sprite);
+      if (sp) sp.alpha = 0.7 + Math.sin(coinTime*4)*0.3;
+    }
+
+    joy.draw(ctx);
+
+    // Jump button
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = '#ff6b00'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(scW-62, scH-80, 40, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = '#ff6b00';
+    ctx.font = 'bold 20px "Space Mono"';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('↑', scW-62, scH-80);
+    ctx.restore();
+
+    // HUD
+    renderer.stext(`★ ${score}`, scW/2, 22, Color.fromHex('#ffd700'), 'bold 15px "Space Mono"', 'center');
+    renderer.stext(`FPS ${engine.fps}`, 12, 28, Color.fromHex('#334433'), '10px "Space Mono"');
+  };
+
+  r.cam.x = W/2;
+  r.cam.y = H*0.4;
+  r.cam.zoom = 1;
+}
+
+// ─────────────────────────────────────────────────────────
+// PARTICLES DEMO
+// ─────────────────────────────────────────────────────────
+function loadParticlesDemo() {
+  const r = engine.renderer;
+  engine.renderer.bg = new Color(0.015, 0.015, 0.025);
+
+  const world = new World();
+  engine._scene = { world, physWorld: null };
+
+  const particles = [];
+  let autoT = 0;
+  let hue = 0;
+
+  function burst(wx, wy, count=28) {
+    engine.audio.playPop();
+    for (let i=0; i<count; i++) {
+      const angle = Math.random()*Math.PI*2;
+      const speed = MathUtils.randRange(50, 300);
+      const h = (hue + MathUtils.randRange(-30, 30) + 360) % 360;
+      particles.push({
+        x:wx, y:wy,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed - MathUtils.randRange(0, 60),
+        life:1,
+        maxLife: MathUtils.randRange(0.7, 2.5),
+        r: MathUtils.randRange(3, 9),
+        hue:h,
+        grav: MathUtils.randRange(80, 280),
+        drag: MathUtils.randRange(0.93, 0.99),
+        trail: Math.random()>0.5,
+        px: wx, py: wy,
+      });
+    }
+    hue = (hue + 40) % 360;
+  }
+
+  engine.onUpdate = (dt) => {
+    autoT += dt;
+    if (autoT > 1.4) {
+      const scW = r.canvas.width / (window.devicePixelRatio||1);
+      const scH = r.canvas.height / (window.devicePixelRatio||1);
+      burst(
+        MathUtils.randRange(scW*0.2, scW*0.8),
+        MathUtils.randRange(scH*0.3, scH*0.7),
+        22
+      );
+      autoT = 0;
+    }
+
+    const inp = engine.input;
+    const scW = r.canvas.width / (window.devicePixelRatio||1);
+    const scH = r.canvas.height / (window.devicePixelRatio||1);
+
+    if (inp.isMousePressed(0)) burst(inp.mouseX, inp.mouseY, 35);
+    for (const t of inp.getTouches()) burst(t.x, t.y, 22);
+
+    for (let i=particles.length-1; i>=0; i--) {
+      const p = particles[i];
+      p.px=p.x; p.py=p.y;
+      p.vx *= p.drag; p.vy = p.vy*p.drag + p.grav*dt;
+      p.x += p.vx*dt; p.y += p.vy*dt;
+      p.life -= dt / p.maxLife;
+      if (p.life<=0) particles.splice(i,1);
+    }
+  };
+
+  engine.onRender = (renderer) => {
+    const ctx = renderer.ctx;
+    const scW = renderer.canvas.width / (window.devicePixelRatio||1);
+
+    ctx.save();
+    for (const p of particles) {
+      const a = Math.pow(p.life, 0.6);
+      if (p.trail) {
+        ctx.globalAlpha = a * 0.4;
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = `hsl(${p.hue},100%,60%)`;
+        ctx.lineWidth = p.r * p.life * 0.7;
+        ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
+      }
+      ctx.globalAlpha = a;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = `hsl(${p.hue},100%,60%)`;
+      ctx.fillStyle = `hsl(${p.hue},100%,65%)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    ctx.restore();
+    ctx.globalAlpha = 1;
+
+    renderer.stext(`${particles.length} particles`, 12, 28, Color.fromHex('#ff6b0066'), '11px "Space Mono"');
+    renderer.stext('TAP ANYWHERE', scW/2, 22, Color.fromHex('#2a2a40'), '10px "Space Mono"', 'center');
+  };
+}
+
+// ─────────────────────────────────────────────────────────
+// DEMO SWITCHER
+// ─────────────────────────────────────────────────────────
+const HINTS = {
+  physics:    '<span>TAP</span> canvas to spawn · objects bounce with physics',
+  platformer: '<span>DRAG LEFT</span> to move · <span>TAP RIGHT</span> to jump · collect ★',
+  particles:  '<span>TAP ANYWHERE</span> to burst · auto-fires every 1.4s',
+};
+
+function switchDemo(name, btn) {
+  document.querySelectorAll('.demo-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  currentDemo = name;
+  document.getElementById('demoHint').innerHTML = HINTS[name];
+  if (engine) loadDemo(name);
+}
+
+function loadDemo(name) {
+  engine.onUpdate = null;
+  engine.onRender = null;
+  if (engine._scene?.world) engine._scene.world.clear();
+
+  if (name === 'physics')    loadPhysicsDemo();
+  else if (name === 'platformer') loadPlatformerDemo();
+  else if (name === 'particles')  loadParticlesDemo();
+}
+
+// ─────────────────────────────────────────────────────────
+// Intersection observer for scroll animations
+// ─────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) entry.target.style.opacity = '1';
+  }
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.anim').forEach(el => {
+  el.style.opacity = '0';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
