@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Janice — A Letter Long Overdue</title>
+
+<!-- ═══════════════════════════════════════════
+     FIREBASE SDK  (compat — works in plain HTML)
+═══════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Share+Tech+Mono&family=Dancing+Script:wght@400;700&display=swap');
+:root{--np:#ff2d78;--nb:#00f0ff;--sp:#ff8fab;--dark:#03000a;--gp:0 0 8px #ff2d78,0 0 25px rgba(255,45,120,.4);--gb:0 0 8px #00f0ff,0 0 25px rgba(0,240,255,.4)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--dark);font-family:'Cormorant Garamond',Georgia,serif;color:#e0d6f5;overflow-x:hidden;cursor:none}
+/* CURSOR */
+#cur{width:10px;height:10px;background:var(--np);border-radius:50%;position:fixed;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);box-shadow:var(--gp);transition:.15s}
+#cur2{width:32px;height:32px;border:1px solid var(--nb);border-radius:50%;position:fixed;pointer-events:none;z-index:99998;transform:translate(-50%,-50%)}
+/* BOOT */
+#boot{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.bscan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,.025) 2px,rgba(0,240,255,.025) 4px);pointer-events:none;animation:scanr 6s linear infinite}
+@keyframes scanr{to{background-position:0 80px}}
+.btitle{font-family:'Cinzel',serif;font-size:clamp(.75rem,2.5vw,1.35rem);color:var(--nb);text-shadow:var(--gb);letter-spacing:.5em;text-align:center;z-index:2;animation:flk 5s infinite}
+@keyframes flk{0%,93%,100%{opacity:1}94%{opacity:.2}96%{opacity:.5}}
+.bsub{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:rgba(0,240,255,.4);letter-spacing:.35em;z-index:2;text-align:center}
+.bform{z-index:2;display:flex;flex-direction:column;align-items:center;gap:13px}
+.blbl{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--np);letter-spacing:.3em;text-shadow:var(--gp)}
+#binput{background:transparent;border:none;border-bottom:1px solid var(--nb);color:var(--nb);font-family:'Share Tech Mono',monospace;font-size:.9rem;letter-spacing:.25em;text-align:center;width:270px;padding:8px 0;outline:none;caret-color:var(--np)}
+#binput:focus{border-bottom-color:var(--np)}
+.bhint{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(255,255,255,.17);letter-spacing:.14em}
+#berr{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--np);text-shadow:var(--gp);letter-spacing:.2em;opacity:0;transition:.3s}
+.bbtn{background:transparent;border:1px solid var(--np);color:var(--np);font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.4em;padding:10px 26px;cursor:pointer;box-shadow:var(--gp);transition:.3s}
+.bbtn:hover{background:rgba(255,45,120,.12);box-shadow:0 0 22px #ff2d78,0 0 55px rgba(255,45,120,.3)}
+#bcan{position:absolute;inset:0;z-index:1}
+#btrans{position:fixed;inset:0;z-index:10000;background:#000;opacity:0;pointer-events:none;transition:opacity .7s}
+/* FIREBASE STATUS */
+#fbst{position:fixed;top:58px;right:14px;z-index:200;font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.15em;padding:4px 9px;border:1px solid rgba(0,240,255,.18);background:rgba(0,8,24,.7);color:rgba(0,240,255,.5);backdrop-filter:blur(6px)}
+#fbst.ok{border-color:rgba(0,240,255,.4);color:var(--nb)}
+#fbst.err{border-color:rgba(255,45,120,.4);color:var(--np)}
+/* MAIN */
+#main{display:none}
+.ambg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 70% 60% at 15% 40%,rgba(0,80,220,.1) 0%,transparent 60%),radial-gradient(ellipse 60% 70% at 85% 65%,rgba(255,45,120,.08) 0%,transparent 60%),linear-gradient(180deg,#03000a 0%,#060010 100%);pointer-events:none}
+.scl{position:fixed;inset:0;z-index:1;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px);pointer-events:none;opacity:.45}
+#pcan{position:fixed;inset:0;z-index:1;pointer-events:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(3,0,10,.92),transparent);backdrop-filter:blur(6px)}
+.nbrand{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.4em;color:var(--nb);text-shadow:var(--gb);opacity:.7}
+.ndate{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(255,45,120,.5);letter-spacing:.2em}
+section{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:110px 24px 80px}
+.rv{opacity:0;transform:translateY(34px);transition:opacity .85s ease,transform .85s ease}.rv.on{opacity:1;transform:translateY(0)}
+/* HERO */
+.eyebrow{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.5em;color:var(--np);text-shadow:var(--gp);margin-bottom:20px;animation:fdu 1s .4s both}
+.hname{font-family:'Cinzel',serif;font-size:clamp(3rem,11vw,8.5rem);font-weight:700;line-height:1;background:linear-gradient(135deg,var(--nb) 0%,var(--sp) 50%,var(--np) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 28px rgba(255,45,120,.5));animation:fdu 1.1s .7s both}
+.hsub{font-family:'Dancing Script',cursive;font-size:clamp(.9rem,2.5vw,1.5rem);color:rgba(224,214,245,.52);font-style:italic;margin-top:10px;animation:fdu .9s 1.1s both}
+.hdiv{width:170px;height:1px;background:linear-gradient(to right,transparent,var(--nb),var(--np),transparent);margin:26px auto;animation:fdi .8s 1.4s both}
+.hint{font-size:clamp(.92rem,1.7vw,1.15rem);font-weight:300;font-style:italic;color:rgba(224,214,245,.65);max-width:600px;line-height:1.95;text-align:center;animation:fdu .9s 1.7s both}
+.srhint{position:absolute;bottom:34px;display:flex;flex-direction:column;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:.56rem;letter-spacing:.3em;color:rgba(0,240,255,.33);animation:fdi .8s 2.4s both}
+.srarr{width:15px;height:15px;border-right:1px solid var(--nb);border-bottom:1px solid var(--nb);transform:rotate(45deg);animation:bd 2.2s 3s ease infinite}
+@keyframes bd{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(7px)}}
+@keyframes fdu{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fdi{from{opacity:0}to{opacity:1}}
+/* LAYOUT */
+.wrap{max-width:800px;width:100%;margin:0 auto}
+.stag{font-family:'Share Tech Mono',monospace;font-size:.56rem;letter-spacing:.5em;color:var(--nb);text-shadow:var(--gb);margin-bottom:16px;display:flex;align-items:center;gap:13px}
+.stag::before{content:'';width:34px;height:1px;background:var(--nb);box-shadow:var(--gb)}
+.stag.pk{color:var(--np);text-shadow:var(--gp)}.stag.pk::before{background:var(--np);box-shadow:var(--gp)}
+h2.sh{font-family:'Cinzel',serif;font-size:clamp(1.3rem,3.5vw,2.3rem);font-weight:400;color:#fff;margin-bottom:26px;line-height:1.25}
+.pk-t{color:var(--np);text-shadow:var(--gp)}.bl-t{color:var(--nb);text-shadow:var(--gb)}
+.prose{font-size:clamp(.92rem,1.35vw,1.12rem);font-weight:300;line-height:2;color:rgba(224,214,245,.8);margin-bottom:20px}
+.prose em{color:var(--sp);font-style:italic}.prose strong{color:var(--nb);font-weight:400}
+.poem{border-left:2px solid var(--np);padding:20px 26px;margin:32px 0;background:rgba(255,45,120,.04);font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.05rem,1.8vw,1.28rem);font-weight:300;line-height:2.2;color:rgba(255,200,215,.92);font-style:italic;position:relative;letter-spacing:.02em}
+.poem::before{content:'"';position:absolute;top:-7px;left:16px;font-size:4.5rem;color:var(--np);opacity:.1;font-family:'Cinzel',serif;line-height:1}
+.poem.bl{border-left-color:var(--nb);background:rgba(0,240,255,.04);color:rgba(190,240,255,.92)}.poem.bl::before{color:var(--nb)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin:32px 0}
+.card{border:1px solid rgba(255,45,120,.17);padding:22px;background:rgba(255,45,120,.04);position:relative;transition:.4s}
+.card::before{content:'';position:absolute;top:0;left:0;width:46px;height:1px;background:var(--np);box-shadow:var(--gp)}
+.card:hover{border-color:rgba(255,45,120,.42);box-shadow:0 0 22px rgba(255,45,120,.08)}
+.cnum{font-family:'Cinzel',serif;font-size:.58rem;color:var(--np);letter-spacing:.4em;margin-bottom:9px;opacity:.6}
+.ctxt{font-size:.93rem;font-weight:300;line-height:1.82;color:rgba(224,214,245,.78)}
+.sbanner{text-align:center;padding:55px 20px;position:relative;z-index:10}
+.stxt{font-family:'Cinzel',serif;font-size:clamp(2.2rem,10vw,7.5rem);font-weight:700;background:linear-gradient(135deg,var(--np),var(--nb),var(--np));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gsh 4s ease infinite;filter:drop-shadow(0 0 30px rgba(255,45,120,.5))}
+@keyframes gsh{0%{background-position:0 center}50%{background-position:100% center}100%{background-position:0 center}}
+.tl{position:relative;padding-left:36px;margin:32px 0}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--nb),var(--np),transparent)}
+.tli{position:relative;margin-bottom:28px}
+.tld{position:absolute;left:-33px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--np);box-shadow:var(--gp)}
+.tll{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--nb);letter-spacing:.3em;margin-bottom:6px}
+.tlt{font-size:.92rem;font-weight:300;line-height:1.82;color:rgba(224,214,245,.78)}
+.sep{width:100%;height:1px;background:linear-gradient(to right,transparent,var(--nb) 30%,var(--np) 70%,transparent);position:relative;z-index:10;box-shadow:0 0 7px rgba(0,240,255,.22)}
+.sigwrap{text-align:center;margin-top:38px}
+.froml{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.4em;color:rgba(0,240,255,.42);margin-bottom:9px}
+.sig{font-family:'Dancing Script',cursive;font-size:clamp(1.5rem,4vw,2.7rem);color:var(--nb);text-shadow:var(--gb)}
+.sigsub{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:rgba(0,240,255,.32);letter-spacing:.3em;margin-top:5px}
+/* MEDIA SECTION */
+#media-sec{position:relative;z-index:10;padding:90px 24px 70px}
+.msec-wrap{max-width:900px;width:100%;margin:0 auto}
+.msec-title{font-family:'Cinzel',serif;font-size:clamp(1.1rem,2.8vw,1.9rem);color:#fff;text-align:center;margin-bottom:7px}
+.msec-sub{font-family:'Dancing Script',cursive;font-size:1.05rem;color:rgba(255,143,171,.5);text-align:center;font-style:italic;margin-bottom:46px}
+.mlbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.45em;color:var(--np);text-shadow:var(--gp);margin-bottom:13px;display:flex;align-items:center;gap:11px}
+.mlbl::before{content:'';width:28px;height:1px;background:var(--np);box-shadow:var(--gp)}
+.mlbl.b{color:var(--nb);text-shadow:var(--gb)}.mlbl.b::before{background:var(--nb);box-shadow:var(--gb)}
+/* DYNAMIC MEDIA GRID */
+.dyn-grid{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:46px;align-items:flex-start}
+.dyn-grid.vid-grid .media-card{flex:0 0 calc(33.333% - 10px);min-width:200px}
+.dyn-grid.ph-grid .media-card{flex:0 0 calc(25% - 11px);min-width:140px}
+.dyn-grid.aud-grid{flex-direction:column}
+.media-card{position:relative;border:1px solid rgba(255,45,120,.22);background:rgba(255,45,120,.04);overflow:hidden;transition:.3s}
+.media-card.vid{border-color:rgba(0,240,255,.2);background:rgba(0,240,255,.03);aspect-ratio:16/9}
+.media-card.ph{aspect-ratio:3/4}
+.media-card:hover{box-shadow:var(--gp)}
+.media-card.vid:hover{box-shadow:var(--gb)}
+.media-card img,.media-card video{width:100%;height:100%;object-fit:cover;display:block}
+.media-card .del-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:1px solid var(--np);color:var(--np);font-size:.6rem;padding:3px 7px;cursor:pointer;font-family:'Share Tech Mono',monospace;opacity:0;transition:.2s;z-index:5}
+.media-card:hover .del-btn{opacity:1}
+.media-card .uploader-tag{position:absolute;bottom:6px;left:6px;font-family:'Share Tech Mono',monospace;font-size:.45rem;letter-spacing:.1em;color:rgba(255,255,255,.6);background:rgba(0,0,0,.5);padding:2px 6px}
+.aud-item{border:1px solid rgba(255,45,120,.18);background:rgba(255,45,120,.04);padding:14px 18px;display:flex;align-items:center;gap:16px;position:relative}
+.aud-item audio{flex:1;height:32px}
+.aud-item .aud-meta{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(255,143,171,.6);min-width:80px}
+.aud-item .del-btn{opacity:1;position:static;background:transparent}
+.add-btn{flex:0 0 auto;border:1px dashed rgba(255,45,120,.35);background:transparent;color:var(--np);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:.3s;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.2em;padding:16px}
+.add-btn.ph{width:calc(25% - 11px);min-width:140px;aspect-ratio:3/4}.add-btn.vid{width:calc(33.333% - 10px);min-width:200px;aspect-ratio:16/9}.add-btn.aud{width:100%;padding:18px;aspect-ratio:unset}
+.add-btn:hover{border-color:var(--np);box-shadow:var(--gp);background:rgba(255,45,120,.06)}
+.add-btn .plus{font-size:1.8rem;opacity:.5;line-height:1}
+.add-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.add-btn-wrap{position:relative}
+/* HEART CANVAS */
+#hcan-sec{position:relative;z-index:10;padding:90px 24px 70px;text-align:center}
+#heartCanvas{border:1px solid rgba(255,45,120,.22);box-shadow:0 0 36px rgba(255,45,120,.13),0 0 70px rgba(0,240,255,.07);cursor:crosshair;max-width:100%}
+.canlbl{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:rgba(255,45,120,.4);letter-spacing:.28em;margin-top:9px}
+.canbtn{background:transparent;border:1px solid var(--np);color:var(--np);font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.4em;padding:9px 20px;cursor:pointer;text-shadow:var(--gp);transition:.3s;margin:4px}
+.canbtn:hover{background:rgba(255,45,120,.1);box-shadow:var(--gp)}
+.canbtn.bl{border-color:var(--nb);color:var(--nb);text-shadow:var(--gb)}.canbtn.bl:hover{background:rgba(0,240,255,.08);box-shadow:var(--gb)}
+.upzone{border:1px dashed rgba(255,45,120,.22);padding:13px 16px;text-align:center;cursor:pointer;transition:.3s;position:relative;margin-top:9px}
+.upzone:hover{border-color:rgba(255,45,120,.5)}.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uptext{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(255,143,171,.42);letter-spacing:.16em}
+/* MESSAGE */
+#msg-sec{position:relative;z-index:10;padding:80px 24px 120px}
+.msgbox{max-width:660px;width:100%;margin:0 auto;border:1px solid rgba(0,240,255,.17);background:rgba(0,8,24,.65);backdrop-filter:blur(18px);padding:42px;position:relative;box-shadow:0 0 45px rgba(0,240,255,.05),inset 0 0 38px rgba(255,45,120,.03)}
+.msgbox::before{content:'';position:absolute;inset:4px;border:1px solid rgba(255,45,120,.07);pointer-events:none}
+.mc{position:absolute;width:17px;height:17px}
+.mc.tl{top:-1px;left:-1px;border-top:2px solid var(--nb);border-left:2px solid var(--nb)}
+.mc.tr{top:-1px;right:-1px;border-top:2px solid var(--np);border-right:2px solid var(--np)}
+.mc.bl{bottom:-1px;left:-1px;border-bottom:2px solid var(--np);border-left:2px solid var(--np)}
+.mc.br{bottom:-1px;right:-1px;border-bottom:2px solid var(--nb);border-right:2px solid var(--nb)}
+.mhead{font-family:'Cinzel',serif;font-size:clamp(1rem,2.5vw,1.65rem);color:#fff;margin-bottom:6px;text-align:center}
+.msub{font-family:'Dancing Script',cursive;font-size:.98rem;color:rgba(255,143,171,.5);text-align:center;font-style:italic;margin-bottom:26px}
+#msgtxt{width:100%;background:rgba(0,240,255,.03);border:1px solid rgba(0,240,255,.12);color:#e0d6f5;font-family:'Cormorant Garamond',Georgia,serif;font-size:.98rem;line-height:1.75;padding:17px;resize:vertical;min-height:125px;outline:none;transition:.3s;font-style:italic}
+#msgtxt::placeholder{color:rgba(224,214,245,.17);font-style:italic}
+#msgtxt:focus{border-color:rgba(255,45,120,.38)}
+.msendbtn{width:100%;margin-top:17px;background:linear-gradient(135deg,rgba(255,45,120,.11),rgba(0,240,255,.11));border:1px solid rgba(255,45,120,.36);color:#fff;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.5em;padding:14px;cursor:pointer;transition:.4s}
+.msendbtn:hover{box-shadow:0 0 25px rgba(255,45,120,.26);border-color:rgba(255,45,120,.62)}
+.mnote{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(224,214,245,.2);text-align:center;margin-top:9px;letter-spacing:.12em}
+#mst{font-family:'Share Tech Mono',monospace;font-size:.58rem;text-align:center;margin-top:6px;height:17px;letter-spacing:.17em;transition:.3s}
+#mst.ok{color:var(--nb);text-shadow:var(--gb)}#mst.no{color:var(--np)}
+/* MESSAGE HISTORY */
+.msg-history{margin-top:24px;max-height:200px;overflow-y:auto;border-top:1px solid rgba(0,240,255,.08);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.msg-entry{padding:10px 14px;border:1px solid rgba(0,240,255,.1);background:rgba(0,240,255,.03);position:relative}
+.msg-entry .msg-author{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--nb);letter-spacing:.2em;margin-bottom:4px}
+.msg-entry .msg-text{font-size:.9rem;color:rgba(224,214,245,.75);line-height:1.6;font-style:italic}
+.msg-entry .msg-time{font-family:'Share Tech Mono',monospace;font-size:.42rem;color:rgba(224,214,245,.25);margin-top:4px}
+/* FOOTER */
+footer{position:relative;z-index:10;text-align:center;padding:46px 20px 34px;border-top:1px solid rgba(0,240,255,.07)}
+.ftxt{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:rgba(224,214,245,.17);letter-spacing:.27em;line-height:2.2}
+.fhrt{color:var(--np);text-shadow:var(--gp);display:inline-block;animation:hb 1.5s ease infinite}
+@keyframes hb{0%,100%{transform:scale(1)}14%{transform:scale(1.35)}28%{transform:scale(1)}42%{transform:scale(1.2)}70%{transform:scale(1)}}
+/* FLOATING BUTTONS */
+.fab{position:fixed;z-index:200;width:44px;height:44px;border:1px solid rgba(0,240,255,.28);background:rgba(0,8,24,.85);backdrop-filter:blur(8px);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:.3s}
+.fab:hover{border-color:var(--nb);box-shadow:var(--gb)}
+#snd{bottom:26px;right:26px;color:var(--nb)}
+#diary-btn{bottom:78px;right:26px;color:var(--np);border-color:rgba(255,45,120,.28);font-size:1rem}
+#diary-btn:hover{border-color:var(--np);box-shadow:var(--gp)}
+/* TOAST */
+#toast{position:fixed;bottom:34px;left:50%;transform:translateX(-50%) translateY(75px);background:rgba(0,8,24,.95);border:1px solid var(--nb);box-shadow:var(--gb);color:var(--nb);font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.19em;padding:11px 24px;z-index:9999;transition:transform .35s ease}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* WHO ARE YOU PROMPT */
+#user-prompt{position:fixed;inset:0;z-index:8888;background:rgba(0,0,10,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:24px;backdrop-filter:blur(10px)}
+#user-prompt.show{display:flex}
+.up-title{font-family:'Cinzel',serif;font-size:clamp(1rem,3vw,1.8rem);color:#fff;text-align:center;letter-spacing:.2em}
+.up-sub{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(0,240,255,.5);letter-spacing:.3em;text-align:center}
+.up-btns{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.up-btn{background:transparent;font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.4em;padding:14px 32px;cursor:pointer;transition:.3s}
+.up-btn.fred{border:1px solid var(--nb);color:var(--nb);text-shadow:var(--gb)}.up-btn.fred:hover{background:rgba(0,240,255,.1);box-shadow:var(--gb)}
+.up-btn.jan{border:1px solid var(--np);color:var(--np);text-shadow:var(--gp)}.up-btn.jan:hover{background:rgba(255,45,120,.1);box-shadow:var(--gp)}
+/* DIARY OVERLAY */
+#diary{position:fixed;inset:0;z-index:5000;background:rgba(2,0,12,.97);display:none;flex-direction:column;backdrop-filter:blur(12px)}
+#diary.open{display:flex}
+.diary-hdr{padding:18px 24px;border-bottom:1px solid rgba(0,240,255,.12);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.diary-hdr-title{font-family:'Cinzel',serif;font-size:clamp(.9rem,2vw,1.4rem);color:#fff;letter-spacing:.25em}
+.diary-hdr-sub{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(255,143,171,.5);letter-spacing:.2em;margin-top:4px}
+.diary-close{background:transparent;border:1px solid rgba(255,45,120,.3);color:var(--np);font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;padding:7px 16px;cursor:pointer;transition:.3s}
+.diary-close:hover{background:rgba(255,45,120,.1);box-shadow:var(--gp)}
+/* DIARY TABS */
+.diary-tabs{display:flex;gap:0;border-bottom:1px solid rgba(0,240,255,.1);flex-shrink:0;overflow-x:auto}
+.dtab{background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(224,214,245,.35);font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.25em;padding:12px 18px;cursor:pointer;transition:.3s;white-space:nowrap}
+.dtab.active{color:var(--nb);border-bottom-color:var(--nb);text-shadow:var(--gb)}
+.dtab:hover{color:rgba(224,214,245,.7)}
+/* DIARY CONTENT */
+.diary-body{flex:1;overflow-y:auto;padding:24px}
+.dpanel{display:none}.dpanel.active{display:block}
+/* NOTES TAB */
+.note-write{width:100%;background:rgba(0,240,255,.03);border:1px solid rgba(0,240,255,.12);color:#e0d6f5;font-family:'Cormorant Garamond',Georgia,serif;font-size:1rem;line-height:1.75;padding:16px;resize:vertical;min-height:120px;outline:none;font-style:italic;margin-bottom:12px}
+.note-write::placeholder{color:rgba(224,214,245,.2);font-style:italic}
+.note-write:focus{border-color:rgba(255,45,120,.35)}
+.diary-save-btn{background:transparent;border:1px solid var(--np);color:var(--np);font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.4em;padding:9px 22px;cursor:pointer;transition:.3s;margin-bottom:24px}
+.diary-save-btn:hover{background:rgba(255,45,120,.1);box-shadow:var(--gp)}
+.diary-save-btn.bl{border-color:var(--nb);color:var(--nb)}.diary-save-btn.bl:hover{background:rgba(0,240,255,.08);box-shadow:var(--gb)}
+.note-list{display:flex;flex-direction:column;gap:14px}
+.note-item{border:1px solid rgba(0,240,255,.1);background:rgba(0,240,255,.03);padding:16px 18px;position:relative}
+.note-item .ni-author{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:var(--nb);letter-spacing:.2em;margin-bottom:6px}
+.note-item .ni-text{font-size:.95rem;font-weight:300;line-height:1.8;color:rgba(224,214,245,.82)}
+.note-item .ni-time{font-family:'Share Tech Mono',monospace;font-size:.42rem;color:rgba(224,214,245,.25);margin-top:8px}
+.note-item .ni-del{position:absolute;top:8px;right:8px;background:transparent;border:1px solid rgba(255,45,120,.25);color:rgba(255,45,120,.5);font-size:.55rem;padding:2px 7px;cursor:pointer;font-family:'Share Tech Mono',monospace}
+/* TASKS TAB */
+.todo-input-row{display:flex;gap:10px;margin-bottom:20px}
+.todo-input{flex:1;background:rgba(0,240,255,.03);border:1px solid rgba(0,240,255,.12);color:#e0d6f5;font-family:'Cormorant Garamond',Georgia,serif;font-size:.95rem;padding:10px 14px;outline:none;font-style:italic}
+.todo-input::placeholder{color:rgba(224,214,245,.2);font-style:italic}
+.todo-input:focus{border-color:rgba(255,45,120,.35)}
+.todo-list{display:flex;flex-direction:column;gap:10px}
+.todo-item{border:1px solid rgba(0,240,255,.1);background:rgba(0,240,255,.03);padding:12px 16px;display:flex;align-items:center;gap:14px}
+.todo-check{width:16px;height:16px;border:1px solid rgba(0,240,255,.4);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--nb)}
+.todo-check.done{background:rgba(0,240,255,.15);border-color:var(--nb)}
+.todo-text{flex:1;font-size:.95rem;font-weight:300;color:rgba(224,214,245,.82)}
+.todo-text.done{text-decoration:line-through;opacity:.45}
+.todo-author{font-family:'Share Tech Mono',monospace;font-size:.44rem;color:rgba(224,214,245,.3);letter-spacing:.15em}
+.todo-del{background:transparent;border:none;color:rgba(255,45,120,.4);cursor:pointer;font-size:.9rem;padding:0 4px}
+/* VOICE TAB */
+.recorder-wrap{text-align:center;padding:30px 0;border:1px solid rgba(255,45,120,.15);background:rgba(255,45,120,.03);margin-bottom:24px}
+#rec-btn{width:70px;height:70px;border-radius:50%;border:2px solid var(--np);background:transparent;color:var(--np);font-size:1.6rem;cursor:pointer;transition:.3s;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:var(--gp)}
+#rec-btn.recording{background:rgba(255,45,120,.18);animation:recPulse 1s ease infinite}
+@keyframes recPulse{0%,100%{box-shadow:var(--gp)}50%{box-shadow:0 0 20px #ff2d78,0 0 50px rgba(255,45,120,.6)}}
+#rec-timer{font-family:'Share Tech Mono',monospace;font-size:1.2rem;color:var(--np);letter-spacing:.3em;margin-bottom:8px}
+#rec-status{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(255,143,171,.5);letter-spacing:.2em}
+.recording-list{display:flex;flex-direction:column;gap:10px}
+.rec-item{border:1px solid rgba(255,45,120,.15);background:rgba(255,45,120,.03);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.rec-item audio{flex:1;height:30px}
+.rec-item .rec-meta{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:rgba(255,143,171,.5);min-width:70px}
+/* DIARY PHOTOS/VIDEOS */
+.diary-media-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.diary-media-grid .media-card.ph{flex:0 0 calc(33.333% - 8px);min-width:120px}
+.diary-media-grid .media-card.vid{flex:0 0 calc(50% - 6px);min-width:180px;aspect-ratio:16/9}
+/* DELTA TAB */
+.delta-wrap{text-align:center;padding:20px 0}
+.delta-setup{margin-bottom:32px}
+.delta-label{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(0,240,255,.55);letter-spacing:.3em;margin-bottom:8px}
+.delta-input{background:transparent;border:1px solid rgba(0,240,255,.2);color:var(--nb);font-family:'Share Tech Mono',monospace;font-size:.8rem;padding:8px 14px;outline:none;letter-spacing:.15em;text-align:center;margin-bottom:10px;width:220px;display:block;margin:0 auto 10px}
+.delta-input:focus{border-color:var(--nb)}
+.delta-title-input{background:transparent;border:none;border-bottom:1px solid rgba(255,45,120,.25);color:rgba(255,143,171,.8);font-family:'Dancing Script',cursive;font-size:1.1rem;padding:6px 10px;outline:none;text-align:center;width:100%;max-width:300px;margin:0 auto 16px;display:block}
+.delta-display{border:1px solid rgba(255,45,120,.2);background:rgba(255,45,120,.04);padding:32px 24px;margin:20px 0;position:relative}
+.delta-display::before{content:'';position:absolute;top:0;left:0;width:50px;height:1px;background:var(--np);box-shadow:var(--gp)}
+.delta-name{font-family:'Cinzel',serif;font-size:.85rem;color:rgba(255,143,171,.6);letter-spacing:.3em;margin-bottom:12px}
+.delta-nums{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:8px}
+.delta-unit{text-align:center}
+.delta-val{font-family:'Cinzel',serif;font-size:clamp(1.8rem,5vw,3.2rem);color:var(--np);text-shadow:var(--gp);line-height:1;display:block}
+.delta-uname{font-family:'Share Tech Mono',monospace;font-size:.45rem;color:rgba(255,143,171,.4);letter-spacing:.3em;margin-top:4px;display:block}
+.delta-since{font-family:'Dancing Script',cursive;font-size:1rem;color:rgba(255,143,171,.45);font-style:italic;margin-top:12px}
+.delta-section{margin-bottom:28px}
+@media(max-width:600px){
+  section,#media-sec,#hcan-sec,#msg-sec{padding-left:14px;padding-right:14px}
+  .msgbox{padding:22px 16px}.poem{padding:14px 17px}
+  nav{padding:13px 16px}
+  .dyn-grid.ph-grid .media-card,.add-btn.ph{flex:0 0 calc(50% - 7px)}
+  .dyn-grid.vid-grid .media-card,.add-btn.vid{flex:0 0 calc(100%)}
+  .delta-nums{gap:12px}.delta-val{font-size:clamp(1.4rem,8vw,2.4rem)}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div><div id="cur2"></div><div id="toast"></div>
+<div id="fbst">◈ FIREBASE</div>
+
+<!-- WHO ARE YOU -->
+<div id="user-prompt">
+  <div class="up-title">Who is using this device?</div>
+  <div class="up-sub">YOUR IDENTITY WILL APPEAR ON DIARY ENTRIES &amp; MESSAGES</div>
+  <div class="up-btns">
+    <button class="up-btn fred" onclick="setUser('Frederick')">FREDERICK</button>
+    <button class="up-btn jan" onclick="setUser('Janice')">JANICE</button>
+  </div>
+</div>
+
+<!-- FLOATING BUTTONS -->
+<button class="fab" id="snd" title="Upload your personal song">♪</button>
+<button class="fab" id="diary-btn" title="Open Live Diary" onclick="openDiary()">📓</button>
+<audio id="bgAudio" loop></audio>
+
+<!-- BOOT -->
+<div id="boot">
+  <canvas id="bcan"></canvas>
+  <div class="bscan"></div>
+  <div class="btitle" style="z-index:2">◈ &nbsp; ENCRYPTED TRANSMISSION &nbsp; ◈<span style="display:block;font-size:.45em;opacity:.42;margin-top:5px;letter-spacing:.34em">PRIVATE · CLASSIFIED · PERSONAL</span></div>
+  <div class="bsub" style="z-index:2">THIS MESSAGE IS PROTECTED — ENTER PASSPHRASE TO UNLOCK</div>
+  <div class="bform">
+    <div class="blbl">▸ PASSPHRASE REQUIRED</div>
+    <input id="binput" type="password" placeholder="· · · · · · · · · · · · · · ·" autocomplete="off"/>
+    <div class="bhint">hint: the two things that matter most</div>
+    <div id="berr">⚠ &nbsp; ACCESS DENIED — INCORRECT PASSPHRASE</div>
+    <button class="bbtn" onclick="chkPwd()">DECRYPT &amp; ENTER ▶</button>
+  </div>
+</div>
+<div id="btrans"></div>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="ambg"></div><div class="scl"></div><canvas id="pcan"></canvas>
+  <nav><div class="nbrand">FOR : JANICE ASEDA NHYRA ABBEY · JARVIS</div><div class="ndate">FROM : FREDERICK · ATLAS · 2025</div></nav>
+
+  <!-- HERO -->
+  <section id="hero" style="text-align:center;overflow:hidden">
+    <div class="eyebrow">A LETTER LONG OVERDUE &nbsp;·&nbsp; WRITTEN IN TRUTH &nbsp;·&nbsp; SEALED IN REGRET</div>
+    <h1 class="hname">JANICE</h1>
+    <div class="hsub">Aseda Nhyra Abbey — forever called Jarvis</div>
+    <div class="hdiv"></div>
+    <p class="hint">I built this page because every time I opened my mouth,<br>the words came out wrong — or never came out at all.<br><em style="color:var(--sp)">This was the only way I could say it properly.</em></p>
+    <div class="srhint"><div class="srarr"></div>SCROLL TO READ</div>
+  </section><div class="sep"></div>
+
+  <!-- CH 1 -->
+  <section><div class="wrap rv">
+    <div class="stag">CHAPTER ONE</div>
+    <h2 class="sh">You Were <span class="bl-t">Real.</span><br>And I Treated You Like You Weren't.</h2>
+    <p class="prose">Janice Aseda Nhyra Abbey — Jarvis — I have been carrying these words far longer than I deserved to. You were someone who chose to be around me, and instead of cherishing that, I turned it into something selfish. I touched you for my own pleasure when you deserved to be held with <em>reverence</em>. I was cold and distant when you deserved warmth and full presence. I used you when you deserved to be chosen — deliberately, openly, and with care.</p>
+    <div class="poem">
+      She stood like a lantern in the dark of who I was,<br>
+      and I — I kept blowing out her flame<br>
+      because I was afraid her light<br>
+      would show me who I truly am.<br><br>
+      And I did not like what lived in that mirror.<br>
+      So I put out the light<br>
+      and called the darkness comfortable.
+    </div>
+    <p class="prose">There is no excuse that would be enough. But I owe you the truth — not the version I wore to protect myself. <strong>The real one.</strong> The one that admits I was wrong in every way, at every single turn, and that you deserved someone who knew better — or at least, someone willing to try.</p>
+  </div></section><div class="sep"></div>
+
+  <!-- CH 2 -->
+  <section style="background:rgba(255,45,120,.01)"><div class="wrap rv">
+    <div class="stag pk">CHAPTER TWO</div>
+    <h2 class="sh">The Things I Did<br>That I <span class="pk-t">Cannot Undo</span></h2>
+    <div class="cgrid">
+      <div class="card rv"><div class="cnum">CONFESSION · I</div><div class="ctxt">I was <strong style="color:var(--sp)">evil towards you.</strong> Not passively — deliberately. I chose cruelty over kindness again and again, watched it hurt you, and kept going. That is not confusion. That is selfishness at its worst.</div></div>
+      <div class="card rv"><div class="cnum">CONFESSION · II</div><div class="ctxt">I touched you for my own pleasure when what you needed was someone who wanted to <em>know</em> you — to date you, hold you gently, court you with intention. You deserved all of that. I took what I wanted and kept you at a distance.</div></div>
+      <div class="card rv"><div class="cnum">CONFESSION · III</div><div class="ctxt">I lied. Constantly. About big things and small ones — and worst of all, about <em>what you meant to me</em>. I denied that I ever loved you, even while something inside me screamed that it wasn't true. Every word was a coward's shield.</div></div>
+      <div class="card rv"><div class="cnum">CONFESSION · IV</div><div class="ctxt">I knew you were hurting. I was never blind to it. I <strong style="color:var(--sp)">chose to pretend otherwise.</strong> I played dumb, acted unbothered — while knowing exactly what I was doing to you. That is the version of me I am most ashamed of.</div></div>
+      <div class="card rv"><div class="cnum">CONFESSION · V</div><div class="ctxt">Everything I did to hurt you was <strong style="color:var(--sp)">intentional and selfish.</strong> I cannot soften that. Every act of coldness, every lie, every moment I treated you as less than you were — I chose all of it. That truth lives in me.</div></div>
+      <div class="card rv"><div class="cnum">CONFESSION · VI</div><div class="ctxt">I wore a mask for so long I stopped knowing who lived beneath it. I showed up as a character — distant, untouchable — when deep down I was <em>terrified</em> of being truly seen. You could see through it. And that terrified me most.</div></div>
+    </div>
+  </div></section>
+
+  <div class="sbanner rv">
+    <div class="stxt">I AM SORRY.</div>
+    <p style="font-family:'Dancing Script',cursive;font-size:clamp(.95rem,2.2vw,1.35rem);color:rgba(255,143,171,.52);margin-top:13px;font-style:italic">Not for what I might lose. For what I put you through.</p>
+  </div><div class="sep"></div>
+
+  <!-- CH 3 -->
+  <section><div class="wrap rv">
+    <div class="stag">CHAPTER THREE</div>
+    <h2 class="sh">I Was <span class="pk-t">Scared</span> of You<br>Because You Were <span class="bl-t">More Consistent Than Me</span></h2>
+    <p class="prose">Here is the truth I buried while it lived rent-free in my chest every night: <strong>I loved you.</strong> Past tense only because I broke what could have been — not because the feeling was never real. It was real. You were real. And I treated real like it was something to be managed rather than something to be grateful for.</p>
+    <p class="prose">You were too good. Too warm. Too present. Something in me — the part that had never learned to simply <em>receive</em> something good without destroying it — was terrified that if I let you in completely, you would eventually see how broken I actually was and leave. So I made sure you left first.</p>
+    <div class="poem bl">
+      The bravest thing she ever did<br>
+      was love someone who refused to be loved.<br>
+      The saddest thing I ever did<br>
+      was refuse her — and call it strength.<br><br>
+      Fear dressed in armor still bleeds.<br>
+      It just bleeds inward,<br>
+      where no one can witness it<br>
+      but the one who chose the wound.
+    </div>
+    <p class="prose">The fear of being with someone more consistent than me crept into every interaction we had. And instead of working on myself to deserve you, I made myself deserve <em>less</em> of you. It was cowardice dressed as indifference. I am not proud of a single second of it, Janice.</p>
+  </div></section><div class="sep"></div>
+
+  <!-- CH 4 -->
+  <section style="background:rgba(0,240,255,.01)"><div class="wrap rv">
+    <div class="stag">CHAPTER FOUR</div>
+    <h2 class="sh">What You Didn't Know<br>Was Happening <span class="bl-t">Behind the Silence</span></h2>
+    <p class="prose">Every time you ignored me — and you had every right to — I did not move on unbothered the way I performed. I went to <em>Sylvia</em>. I asked what I was doing wrong. I listened. I tried to understand. <strong>I tried to fix it.</strong> Because somewhere inside the mess of who I was, I cared about you more than I ever let you see.</p>
+    <div class="tl">
+      <div class="tli rv"><div class="tld"></div><div class="tll">THE THING ABOUT CARE</div><div class="tlt">Every time you pulled away, something in me quietly panicked. It was proof — even to me — that I was not as indifferent as I claimed to be. I just didn't know how to turn that panic into something that looked like love rather than the opposite.</div></div>
+      <div class="tli rv" style="transition-delay:.13s"><div class="tld" style="background:var(--nb);box-shadow:var(--gb)"></div><div class="tll">WHAT I SHOULD HAVE SAID</div><div class="tlt">I should have been brave enough to say — <em>"I like you. I am scared. But I choose you over the fear."</em> Instead I swallowed that sentence and handed you cruelty. I called it protecting myself when really I was protecting a broken version of me that didn't have to be vulnerable.</div></div>
+      <div class="tli rv" style="transition-delay:.26s"><div class="tld"></div><div class="tll">WHAT YOU ALWAYS DESERVED</div><div class="tlt">A man who showed up for you. Who was honest about his feelings. Who took you on dates instead of taking advantage. Who chose you openly, proudly, consistently — not because he was afraid of losing you, but because you were worth choosing every single day.</div></div>
+    </div>
+  </div></section><div class="sep"></div>
+
+  <!-- CH 5 -->
+  <section><div class="wrap rv" style="text-align:center;max-width:660px">
+    <div class="stag" style="justify-content:center">FINAL WORDS</div>
+    <h2 class="sh" style="text-align:center">I Will Always <span class="pk-t">Remember</span> You,<br>Janice Aseda.</h2>
+    <p class="prose" style="text-align:center">You were someone who brought me genuine joy — <em>real</em> joy — and I returned it with maltreatment. With coldness. With lies. With a version of myself I do not recognize anymore and do not wish to be again.</p>
+    <div class="poem" style="max-width:470px;margin:32px auto;text-align:left">
+      I will remember you<br>
+      not as a chapter I am glad is over,<br>
+      but as the one I wish I had read better<br>
+      when I had the pages in my hands.<br><br>
+      You deserved someone present.<br>
+      Someone honest.<br>
+      Someone worthy.<br><br>
+      I was none of those things.<br>
+      And I am deeply, genuinely,<br>
+      irreversibly sorry.
+    </div>
+    <p class="prose" style="text-align:center">You are <em>Janice Aseda Nhyra Abbey</em> — Jarvis — and you were never the problem. Never too much. Never not enough. Simply <strong>deserving of far more than what I gave.</strong></p>
+    <p class="prose" style="text-align:center;color:rgba(0,240,255,.52);margin-top:26px">I know forgiveness is earned, not demanded.<br>I am not asking you to forget. I am only asking you to know<br>that this apology is <em>real</em> — and that I built this page<br>because <strong>it was the only way I could say it properly.</strong></p>
+    <div class="sigwrap" style="margin-top:42px">
+      <div class="froml">WITH EVERYTHING I AM CAPABLE OF MEANING —</div>
+      <div class="sig">Frederick Atiase Kodjo Eli</div>
+      <div class="sigsub">FAKE · ATLAS · THE ONE WHO SHOULD HAVE BEEN BETTER</div>
+    </div>
+  </div></section><div class="sep"></div>
+
+  <!-- MEDIA SECTION (Firebase-synced, dynamic +) -->
+  <div id="media-sec">
+    <div class="msec-wrap rv">
+      <div class="stag" style="justify-content:center;margin-bottom:5px">MEMORIES &amp; MOMENTS</div>
+      <div class="msec-title">A Space for What Words Couldn't Hold</div>
+      <div class="msec-sub">Upload photos, videos and sounds — they appear for both of you, live</div>
+
+      <div class="mlbl">PHOTOGRAPHS</div>
+      <div class="dyn-grid ph-grid" id="ph-grid">
+        <div class="add-btn-wrap add-btn ph" onclick="triggerUpload('photo')">
+          <div class="plus">+</div><span>ADD PHOTO</span>
+          <input type="file" accept="image/*" id="ph-input" style="display:none" onchange="uploadMedia(this,'photo')"/>
+        </div>
+      </div>
+
+      <div class="mlbl b">VIDEO MEMORIES</div>
+      <div class="dyn-grid vid-grid" id="vid-grid">
+        <div class="add-btn-wrap add-btn vid" onclick="triggerUpload('video')">
+          <div class="plus">+</div><span>ADD VIDEO</span>
+          <input type="file" accept="video/*" id="vid-input" style="display:none" onchange="uploadMedia(this,'video')"/>
+        </div>
+      </div>
+
+      <div class="mlbl">AUDIO TRACKS</div>
+      <div class="dyn-grid aud-grid" id="aud-grid">
+        <div class="add-btn-wrap add-btn aud" onclick="triggerUpload('audio')">
+          <div class="plus" style="font-size:1.4rem">+</div><span>ADD AUDIO</span>
+          <input type="file" accept="audio/*" id="aud-input" style="display:none" onchange="uploadMedia(this,'audio')"/>
+        </div>
+      </div>
+    </div>
+  </div><div class="sep"></div>
+
+  <!-- HEART CANVAS -->
+  <div id="hcan-sec">
+    <div class="wrap rv" style="max-width:680px;text-align:center">
+      <div class="stag" style="justify-content:center">LOVE.PNG</div>
+      <h2 class="sh" style="text-align:center">A Heart Reserved<br>For <span class="pk-t">The Two of Us</span></h2>
+      <p class="prose" style="text-align:center;margin-bottom:28px">Upload our photos to fill this heart. Click it to release petals. Save as love.png.</p>
+      <div style="display:flex;justify-content:center"><canvas id="heartCanvas" width="460" height="460"></canvas></div>
+      <div class="canlbl">love.png · a heart reserved for two people who deserved better</div>
+      <div style="max-width:380px;margin:16px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="upzone"><input type="file" accept="image/*" onchange="loadHCI(this,'L')"/><div class="uptext">+ YOUR PHOTO (left)</div></div>
+        <div class="upzone"><input type="file" accept="image/*" onchange="loadHCI(this,'R')"/><div class="uptext">+ HER PHOTO (right)</div></div>
+      </div>
+      <div style="margin-top:16px;text-align:center">
+        <button class="canbtn" onclick="drawHeart()">✦ RENDER LOVE</button>
+        <button class="canbtn bl" onclick="saveLove()">↓ SAVE LOVE.PNG</button>
+      </div>
+      <div style="font-size:.82rem;color:rgba(224,214,245,.32);font-style:italic;margin-top:7px;text-align:center">click the heart canvas to release petals</div>
+    </div>
+  </div><div class="sep"></div>
+
+  <!-- MESSAGE BOX -->
+  <div id="msg-sec">
+    <div class="msgbox rv">
+      <div class="mc tl"></div><div class="mc tr"></div><div class="mc bl"></div><div class="mc br"></div>
+      <h3 class="mhead">Please Say Something Back</h3>
+      <p class="msub">— Even one word. Even anger. I want to hear you. —</p>
+      <textarea id="msgtxt" placeholder="Dear Frederick... (write whatever you need to say. I will read every word.)"></textarea>
+      <button class="msendbtn" onclick="sendMsg()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:8px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        SEND TO FREDERICK ON WHATSAPP
+      </button>
+      <button class="msendbtn" style="margin-top:8px;border-color:rgba(0,240,255,.36);background:linear-gradient(135deg,rgba(0,240,255,.08),rgba(255,45,120,.08))" onclick="saveMsg()">SAVE MESSAGE TO SHARED DIARY</button>
+      <div id="mst"></div>
+      <div class="mnote">whatsapp: +233 537 189 307 &nbsp;·&nbsp; messages saved here are visible to both</div>
+      <div class="msg-history" id="msg-history"></div>
+    </div>
+  </div>
+
+  <footer><div class="ftxt">BUILT WITH TRUTH &nbsp;·&nbsp; DELIVERED WITH REGRET &nbsp;·&nbsp; SIGNED IN SHAME AND LOVE<br><span class="fhrt">♥</span><br>JANICE ASEDA NHYRA ABBEY — YOU DESERVED SO MUCH BETTER.<br>FREDERICK ATIASE KODJO ELI (FAKE · ATLAS) — 2025<br>THIS PAGE EXISTS BECAUSE IT WAS THE ONLY WAY HE COULD SAY IT PROPERLY.</div></footer>
+</div><!-- /main -->
+
+<!-- DIARY OVERLAY -->
+<div id="diary">
+  <div class="diary-hdr">
+    <div>
+      <div class="diary-hdr-title">◈ &nbsp; OUR LIVE DIARY</div>
+      <div class="diary-hdr-sub">SHARED · PRIVATE · REAL-TIME · WRITTEN BY BOTH</div>
+    </div>
+    <button class="diary-close" onclick="closeDiary()">✕ CLOSE</button>
+  </div>
+  <div class="diary-tabs">
+    <button class="dtab active" onclick="showTab('notes',this)">📝 NOTES</button>
+    <button class="dtab" onclick="showTab('tasks',this)">✅ TASKS</button>
+    <button class="dtab" onclick="showTab('voice',this)">🎤 VOICE</button>
+    <button class="dtab" onclick="showTab('dphotos',this)">📷 PHOTOS</button>
+    <button class="dtab" onclick="showTab('dvideos',this)">🎬 VIDEOS</button>
+    <button class="dtab" onclick="showTab('delta',this)">⏱ TIME</button>
+  </div>
+  <div class="diary-body">
+
+    <!-- NOTES -->
+    <div class="dpanel active" id="tab-notes">
+      <textarea class="note-write" id="note-input" placeholder="Write what's on your mind today... anything. Everything. I am reading."></textarea>
+      <button class="diary-save-btn" onclick="saveNote()">SAVE NOTE</button>
+      <div class="note-list" id="note-list"></div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="dpanel" id="tab-tasks">
+      <div class="todo-input-row">
+        <input class="todo-input" id="todo-input" placeholder="Add something to remember..." onkeydown="if(event.key==='Enter')saveTodo()"/>
+        <button class="diary-save-btn bl" style="margin-bottom:0" onclick="saveTodo()">ADD</button>
+      </div>
+      <div class="todo-list" id="todo-list"></div>
+    </div>
+
+    <!-- VOICE -->
+    <div class="dpanel" id="tab-voice">
+      <div class="recorder-wrap">
+        <button id="rec-btn" onclick="toggleRec()">🎤</button>
+        <div id="rec-timer">0:00</div>
+        <div id="rec-status">TAP TO START RECORDING</div>
+      </div>
+      <div class="recording-list" id="rec-list"></div>
+    </div>
+
+    <!-- DIARY PHOTOS -->
+    <div class="dpanel" id="tab-dphotos">
+      <div style="margin-bottom:16px">
+        <label style="display:inline-block;border:1px dashed rgba(255,45,120,.3);padding:10px 22px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(255,143,171,.5);letter-spacing:.2em;transition:.3s" onmouseover="this.style.borderColor='var(--np)'" onmouseout="this.style.borderColor='rgba(255,45,120,.3)'">
+          + ADD DIARY PHOTO
+          <input type="file" accept="image/*" style="display:none" onchange="uploadDiaryMedia(this,'dphoto')"/>
+        </label>
+      </div>
+      <div class="diary-media-grid" id="dphoto-grid"></div>
+    </div>
+
+    <!-- DIARY VIDEOS -->
+    <div class="dpanel" id="tab-dvideos">
+      <div style="margin-bottom:16px">
+        <label style="display:inline-block;border:1px dashed rgba(0,240,255,.25);padding:10px 22px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(144,224,239,.45);letter-spacing:.2em;transition:.3s" onmouseover="this.style.borderColor='var(--nb)'" onmouseout="this.style.borderColor='rgba(0,240,255,.25)'">
+          + ADD DIARY VIDEO
+          <input type="file" accept="video/*" style="display:none" onchange="uploadDiaryMedia(this,'dvideo')"/>
+        </label>
+      </div>
+      <div class="diary-media-grid" id="dvideo-grid"></div>
+    </div>
+
+    <!-- DELTA / TIME -->
+    <div class="dpanel" id="tab-delta">
+      <div class="delta-wrap">
+        <div class="delta-section">
+          <div class="delta-label">NAME THIS CHAPTER</div>
+          <input class="delta-title-input" id="delta-title" placeholder="e.g. The Day Everything Began..." onchange="saveDeltaSettings()"/>
+          <div class="delta-label" style="margin-top:16px">START DATE</div>
+          <input class="delta-input" type="date" id="delta-date" onchange="saveDeltaSettings()"/>
+          <button class="diary-save-btn" style="margin-top:10px" onclick="saveDeltaSettings()">SET DATE</button>
+        </div>
+        <div class="delta-display" id="delta-display" style="display:none">
+          <div class="delta-name" id="delta-name-display">OUR TIMELINE</div>
+          <div class="delta-nums">
+            <div class="delta-unit"><span class="delta-val" id="d-days">0</span><span class="delta-uname">DAYS</span></div>
+            <div class="delta-unit"><span class="delta-val" id="d-hrs">0</span><span class="delta-uname">HOURS</span></div>
+            <div class="delta-unit"><span class="delta-val" id="d-min">0</span><span class="delta-uname">MINUTES</span></div>
+            <div class="delta-unit"><span class="delta-val" id="d-sec">0</span><span class="delta-uname">SECONDS</span></div>
+          </div>
+          <div class="delta-since" id="delta-since-txt"></div>
+        </div>
+        <div class="delta-section" style="margin-top:28px">
+          <div class="delta-label">NEXT CHAPTER — COUNTDOWN TO</div>
+          <input class="delta-input" type="date" id="next-date" onchange="saveDeltaSettings()"/>
+          <div class="delta-display" id="next-display" style="display:none;border-color:rgba(0,240,255,.2);background:rgba(0,240,255,.03);margin-top:14px">
+            <div class="delta-name" style="color:rgba(144,224,239,.6)">TIME UNTIL NEXT CHAPTER</div>
+            <div class="delta-nums">
+              <div class="delta-unit"><span class="delta-val" style="color:var(--nb);text-shadow:var(--gb)" id="n-days">0</span><span class="delta-uname">DAYS</span></div>
+              <div class="delta-unit"><span class="delta-val" style="color:var(--nb);text-shadow:var(--gb)" id="n-hrs">0</span><span class="delta-uname">HOURS</span></div>
+              <div class="delta-unit"><span class="delta-val" style="color:var(--nb);text-shadow:var(--gb)" id="n-min">0</span><span class="delta-uname">MINUTES</span></div>
+              <div class="delta-unit"><span class="delta-val" style="color:var(--nb);text-shadow:var(--gb)" id="n-sec">0</span><span class="delta-uname">SECONDS</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /diary-body -->
+</div><!-- /diary -->
+
+<script>
+/* ═══════════════════════════════════════════════════
+   ▶▶  FIREBASE CONFIG — PASTE YOUR CONFIG HERE
+   Get it from: Firebase Console → Project Settings → Your Apps
+═══════════════════════════════════════════════════ */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAPbDdKYp-FvCblKYha83zmeLfNPRVPg2E",
+  authDomain:        "atlas-network-club.firebaseapp.com",
+  projectId:         "atlas-network-club",
+  storageBucket:     "atlas-network-club.firebasestorage.app",
+  messagingSenderId: "1065585357201",
+  appId:             "1:1065585357201:web:7ecb6e9b3d8fadf12c2a30"
+};
+
+/* ═══════════════════════════════════════════════════
+   ▶▶  BACKGROUND SONG — PASTE YOUR SONG FILE PATH OR URL HERE
+   Example: "my-song.mp3"  or  "https://yourdomain.com/song.mp3"
+═══════════════════════════════════════════════════ */
+const BG_SONG_URL = "";  // ← PASTE HERE
+
+/* ═══════════════════ GLOBALS ═══════════════════ */
+let db = null, storage = null, fbReady = false;
+let currentUser = localStorage.getItem('jf_user') || null;
+let recInterval = null, mediaRecorder = null, audioChunks = [], recSeconds = 0;
+let deltaInterval = null;
+
+/* ═══════════════════ CURSOR ═══════════════════ */
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function ring(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(ring)})();
+document.addEventListener('mousedown',()=>{cur.style.transform='translate(-50%,-50%) scale(.55)';cur.style.background='var(--nb)'});
+document.addEventListener('mouseup',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';cur.style.background='var(--np)'});
+
+/* ═══════════════════ BOOT PARTICLES ═══════════════════ */
+(function(){
+  const c=document.getElementById('bcan'),x=c.getContext('2d');
+  function rs(){c.width=innerWidth;c.height=innerHeight}rs();
+  window.addEventListener('resize',rs);
+  const pts=Array.from({length:85},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.5+.2,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,col:Math.random()>.5?'#00f0ff':'#ff2d78',a:Math.random()*.45+.12}));
+  (function draw(){if(document.getElementById('boot').style.display==='none')return;x.clearRect(0,0,c.width,c.height);pts.forEach(p=>{p.x=(p.x+p.vx+c.width)%c.width;p.y=(p.y+p.vy+c.height)%c.height;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle=p.col;x.globalAlpha=p.a;x.fill();x.globalAlpha=1});requestAnimationFrame(draw)})();
+})();
+
+/* ═══════════════════ BOOT PASSWORD ═══════════════════ */
+document.getElementById('binput').addEventListener('keydown',e=>{if(e.key==='Enter')chkPwd()});
+function chkPwd(){
+  const v=document.getElementById('binput').value.toLowerCase().trim();
+  const e=document.getElementById('berr');
+  if(v==='life and love'){
+    playOK();
+    const t=document.getElementById('btrans');t.style.opacity='1';t.style.pointerEvents='all';
+    setTimeout(()=>{document.getElementById('boot').style.display='none';document.getElementById('main').style.display='block';t.style.opacity='0';t.style.pointerEvents='none';initMain()},800);
+  } else {
+    playFail();e.style.opacity='1';document.getElementById('binput').style.borderBottomColor='var(--np)';document.getElementById('binput').value='';
+    setTimeout(()=>{e.style.opacity='0';document.getElementById('binput').style.borderBottomColor='var(--nb)'},2200);
+  }
+}
+
+/* ═══════════════════ BOOT SFX ═══════════════════ */
+function playFail(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(360,c.currentTime);o.frequency.exponentialRampToValueAtTime(85,c.currentTime+.4);g.gain.setValueAtTime(.15,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start();o.stop(c.currentTime+.4)}catch(e){}}
+function playOK(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.1;o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.45);o.start(t);o.stop(t+.5)})}catch(e){}}
+
+/* ═══════════════════ SONG BUTTON ═══════════════════ */
+(function(){
+  const sndBtn=document.getElementById('snd');
+  const bgAudio=document.getElementById('bgAudio');
+  let loaded=false,playing=false;
+  if(BG_SONG_URL){
+    bgAudio.src=BG_SONG_URL;loaded=true;
+    bgAudio.volume=0.28;
+    document.addEventListener('click',()=>{if(!playing&&loaded){bgAudio.play().then(()=>{playing=true;sndBtn.textContent='♪';sndBtn.style.color='var(--nb)'}).catch(()=>{})}},{once:true});
+    sndBtn.title='Click to pause/play song';
+  } else {
+    sndBtn.title='Upload your personal song';
+  }
+  sndBtn.addEventListener('click',()=>{
+    if(!loaded){
+      const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';
+      inp.onchange=()=>{const f=inp.files[0];if(!f)return;bgAudio.src=URL.createObjectURL(f);bgAudio.volume=0.28;bgAudio.play().then(()=>{loaded=true;playing=true;sndBtn.textContent='♪';sndBtn.style.color='var(--nb)';showToast('♫ NOW PLAYING — '+f.name.slice(0,25))}).catch(()=>{})};
+      inp.click();return;
+    }
+    if(playing){bgAudio.pause();playing=false;sndBtn.textContent='♩';sndBtn.style.color='rgba(0,240,255,.45)'}
+    else{bgAudio.play().then(()=>{playing=true;sndBtn.textContent='♪';sndBtn.style.color='var(--nb)'}).catch(()=>{})}
+  });
+})();
+
+/* ═══════════════════ MAIN INIT ═══════════════════ */
+function initMain(){
+  initParts();initReveal();initHeart();initFirebase();
+  if(!currentUser)setTimeout(()=>document.getElementById('user-prompt').classList.add('show'),1200);
+}
+
+/* ═══════════════════ PARTICLES ═══════════════════ */
+function initParts(){
+  const c=document.getElementById('pcan'),x=c.getContext('2d');
+  function rs(){c.width=innerWidth;c.height=innerHeight}rs();
+  window.addEventListener('resize',rs);
+  const pts=Array.from({length:100},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2-.035,col:Math.random()>.5?'#00f0ff':'#ff2d78',a:Math.random()*.3+.08,ph:Math.random()*Math.PI*2}));
+  (function draw(){x.clearRect(0,0,c.width,c.height);pts.forEach(p=>{p.x=(p.x+p.vx+c.width)%c.width;p.y=(p.y+p.vy+c.height)%c.height;p.ph+=.017;const a=p.a*(.7+.3*Math.sin(p.ph));x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle=p.col;x.globalAlpha=a;x.fill();x.globalAlpha=1});requestAnimationFrame(draw)})();
+}
+
+/* ═══════════════════ SCROLL REVEAL ═══════════════════ */
+function initReveal(){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')}),{threshold:.08});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+}
+
+/* ═══════════════════ FIREBASE ═══════════════════ */
+function initFirebase(){
+  const fbst=document.getElementById('fbst');
+  try{
+    if(!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){fbst.textContent='◈ FIREBASE — NOT CONFIGURED';fbst.className='err';return}
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.firestore();storage=firebase.storage();fbReady=true;
+    fbst.textContent='◈ FIREBASE — LIVE';fbst.className='ok';
+    startListeners();
+  }catch(err){fbst.textContent='◈ FIREBASE ERROR';fbst.className='err';console.error(err)}
+}
+
+function startListeners(){
+  // SHARED MEDIA
+  db.collection('media').orderBy('ts').onSnapshot(snap=>{
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==='added')renderMediaItem(ch.doc.data(),ch.doc.id);
+      if(ch.type==='removed')document.getElementById('mc-'+ch.doc.id)?.remove();
+    });
+  });
+  // MESSAGES
+  db.collection('messages').orderBy('ts').onSnapshot(snap=>{
+    const hist=document.getElementById('msg-history');hist.innerHTML='';
+    snap.forEach(d=>{const m=d.data();hist.innerHTML+=`<div class="msg-entry"><div class="msg-author">${m.author||'UNKNOWN'}</div><div class="msg-text">${esc(m.text)}</div><div class="msg-time">${fmtTime(m.ts)}</div></div>`});
+    hist.scrollTop=hist.scrollHeight;
+  });
+  // NOTES
+  db.collection('diary_notes').orderBy('ts','desc').onSnapshot(snap=>{
+    const nl=document.getElementById('note-list');nl.innerHTML='';
+    snap.forEach(d=>{const n=d.data();nl.innerHTML+=`<div class="note-item"><div class="ni-author">${n.author||'?'}</div><div class="ni-text">${esc(n.text)}</div><div class="ni-time">${fmtTime(n.ts)}</div><button class="ni-del" onclick="delNote('${d.id}')">✕</button></div>`});
+  });
+  // TODOS
+  db.collection('diary_todos').orderBy('ts').onSnapshot(snap=>{
+    const tl=document.getElementById('todo-list');tl.innerHTML='';
+    snap.forEach(d=>{const t=d.data();tl.innerHTML+=`<div class="todo-item"><div class="todo-check ${t.done?'done':''}" onclick="toggleTodo('${d.id}',${t.done})">${t.done?'✓':''}</div><div class="todo-text ${t.done?'done':''}">${esc(t.text)}</div><span class="todo-author">${t.author||''}</span><button class="todo-del" onclick="delTodo('${d.id}')">✕</button></div>`});
+  });
+  // VOICE NOTES
+  db.collection('diary_voice').orderBy('ts','desc').onSnapshot(snap=>{
+    const rl=document.getElementById('rec-list');rl.innerHTML='';
+    snap.forEach(d=>{const r=d.data();rl.innerHTML+=`<div class="rec-item"><div class="rec-meta">${r.author||'?'}<br>${fmtTime(r.ts)}</div><audio controls src="${r.url}"></audio><button class="del-btn" onclick="delVoice('${d.id}')">✕</button></div>`});
+  });
+  // DIARY PHOTOS
+  db.collection('diary_photos').orderBy('ts','desc').onSnapshot(snap=>{
+    const g=document.getElementById('dphoto-grid');g.innerHTML='';
+    snap.forEach(d=>{const p=d.data();g.innerHTML+=`<div class="media-card ph"><img src="${p.url}" loading="lazy"/><div class="uploader-tag">${p.author||''}</div><button class="del-btn" onclick="delDiaryMedia('diary_photos','${d.id}')">✕</button></div>`});
+  });
+  // DIARY VIDEOS
+  db.collection('diary_videos').orderBy('ts','desc').onSnapshot(snap=>{
+    const g=document.getElementById('dvideo-grid');g.innerHTML='';
+    snap.forEach(d=>{const v=d.data();g.innerHTML+=`<div class="media-card vid"><video src="${v.url}" controls></video><div class="uploader-tag">${v.author||''}</div><button class="del-btn" onclick="delDiaryMedia('diary_videos','${d.id}')">✕</button></div>`});
+  });
+  // DELTA SETTINGS
+  db.collection('settings').doc('delta').onSnapshot(snap=>{
+    if(!snap.exists)return;
+    const d=snap.data();
+    if(d.title){document.getElementById('delta-title').value=d.title;document.getElementById('delta-name-display').textContent=d.title}
+    if(d.startDate){document.getElementById('delta-date').value=d.startDate;startDeltaTimer(d.startDate,d.title||'OUR TIMELINE')}
+    if(d.nextDate){document.getElementById('next-date').value=d.nextDate;startNextTimer(d.nextDate)}
+  });
+}
+
+/* RENDER SHARED MEDIA ITEM */
+function renderMediaItem(data, id){
+  const el=document.createElement('div');el.id='mc-'+id;
+  if(data.type==='photo'){
+    el.className='media-card ph';
+    el.innerHTML=`<img src="${data.url}" loading="lazy"/><div class="uploader-tag">${data.uploader||''}</div><button class="del-btn" onclick="delMedia('${id}')">✕</button>`;
+    document.getElementById('ph-grid').insertBefore(el,document.getElementById('ph-grid').lastElementChild);
+  } else if(data.type==='video'){
+    el.className='media-card vid';
+    el.innerHTML=`<video src="${data.url}" controls></video><div class="uploader-tag">${data.uploader||''}</div><button class="del-btn" onclick="delMedia('${id}')">✕</button>`;
+    document.getElementById('vid-grid').insertBefore(el,document.getElementById('vid-grid').lastElementChild);
+  } else if(data.type==='audio'){
+    el.className='aud-item';
+    el.id='mc-'+id;
+    el.innerHTML=`<div class="aud-meta">${data.uploader||''}<br>${fmtTime(data.ts)}</div><audio controls src="${data.url}"></audio><button class="del-btn" onclick="delMedia('${id}')">✕</button>`;
+    document.getElementById('aud-grid').insertBefore(el,document.getElementById('aud-grid').lastElementChild);
+  }
+}
+
+/* TRIGGER FILE INPUT */
+function triggerUpload(type){document.getElementById(type==='photo'?'ph-input':type==='video'?'vid-input':'aud-input').click()}
+
+/* UPLOAD SHARED MEDIA */
+async function uploadMedia(input,type){
+  const f=input.files[0];if(!f)return;
+  if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED');return}
+  showToast('UPLOADING...');
+  try{
+    const id=Date.now()+'_'+Math.random().toString(36).slice(2);
+    const ref=storage.ref(`media/${type}/${id}`);
+    await ref.put(f);
+    const url=await ref.getDownloadURL();
+    await db.collection('media').add({type,url,name:f.name,ts:Date.now(),uploader:currentUser||'?'});
+    showToast('✓ '+type.toUpperCase()+' SHARED LIVE');
+    input.value='';
+  }catch(e){showToast('⚠ UPLOAD FAILED');console.error(e)}
+}
+
+/* DELETE SHARED MEDIA */
+async function delMedia(id){if(!fbReady||!confirm('Remove this?'))return;try{await db.collection('media').doc(id).delete();showToast('REMOVED')}catch(e){showToast('⚠ ERROR')}}
+
+/* ═══════════════ USER IDENTITY ═══════════════ */
+function setUser(name){currentUser=name;localStorage.setItem('jf_user',name);document.getElementById('user-prompt').classList.remove('show');showToast('WELCOME, '+name.toUpperCase())}
+
+/* ═══════════════ MESSAGE ═══════════════ */
+function sendMsg(){
+  const msg=document.getElementById('msgtxt').value.trim(),st=document.getElementById('mst');
+  if(!msg){st.textContent='⚠ PLEASE WRITE SOMETHING FIRST';st.className='no';setTimeout(()=>{st.textContent='';st.className=''},2400);return}
+  window.open('https://wa.me/233537189307?text='+encodeURIComponent(msg),'_blank');
+  st.textContent='✓ OPENING WHATSAPP...';st.className='ok';setTimeout(()=>{st.textContent='';st.className=''},2800);
+}
+
+async function saveMsg(){
+  const msg=document.getElementById('msgtxt').value.trim(),st=document.getElementById('mst');
+  if(!msg){st.textContent='⚠ WRITE SOMETHING FIRST';st.className='no';setTimeout(()=>{st.textContent='';st.className=''},2400);return}
+  if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED');return}
+  try{
+    await db.collection('messages').add({text:msg,author:currentUser||'?',ts:Date.now()});
+    document.getElementById('msgtxt').value='';
+    st.textContent='✓ SAVED TO SHARED DIARY';st.className='ok';setTimeout(()=>{st.textContent='';st.className=''},2800);
+  }catch(e){st.textContent='⚠ ERROR';st.className='no';setTimeout(()=>{st.textContent='';st.className=''},2400)}
+}
+
+/* ═══════════════ DIARY ═══════════════ */
+function openDiary(){document.getElementById('diary').classList.add('open');startDeltaIfReady()}
+function closeDiary(){document.getElementById('diary').classList.remove('open')}
+function showTab(id,btn){document.querySelectorAll('.dpanel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active')}
+
+/* NOTES */
+async function saveNote(){
+  const txt=document.getElementById('note-input').value.trim();if(!txt)return;
+  if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED');return}
+  try{await db.collection('diary_notes').add({text:txt,author:currentUser||'?',ts:Date.now()});document.getElementById('note-input').value='';showToast('NOTE SAVED ✓')}catch(e){showToast('⚠ ERROR')}
+}
+async function delNote(id){if(!fbReady||!confirm('Delete this note?'))return;await db.collection('diary_notes').doc(id).delete()}
+
+/* TODOS */
+async function saveTodo(){
+  const txt=document.getElementById('todo-input').value.trim();if(!txt)return;
+  if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED');return}
+  try{await db.collection('diary_todos').add({text:txt,done:false,author:currentUser||'?',ts:Date.now()});document.getElementById('todo-input').value=''}catch(e){showToast('⚠ ERROR')}
+}
+async function toggleTodo(id,wasDone){if(!fbReady)return;try{await db.collection('diary_todos').doc(id).update({done:!wasDone})}catch(e){}}
+async function delTodo(id){if(!fbReady||!confirm('Delete this task?'))return;await db.collection('diary_todos').doc(id).delete()}
+
+/* VOICE RECORDER */
+function toggleRec(){
+  if(!mediaRecorder||mediaRecorder.state==='inactive')startRec();
+  else stopRec();
+}
+async function startRec(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder=new MediaRecorder(stream);audioChunks=[];recSeconds=0;
+    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+    mediaRecorder.onstop=async()=>{
+      const blob=new Blob(audioChunks,{type:'audio/webm'});
+      stream.getTracks().forEach(t=>t.stop());
+      if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED — cannot save voice note');return}
+      showToast('SAVING VOICE NOTE...');
+      try{
+        const id=Date.now();
+        const ref=storage.ref(`diary/voice/${id}.webm`);
+        await ref.put(blob);
+        const url=await ref.getDownloadURL();
+        await db.collection('diary_voice').add({url,author:currentUser||'?',ts:Date.now(),duration:recSeconds});
+        showToast('VOICE NOTE SAVED ✓');
+      }catch(e){showToast('⚠ SAVE FAILED')}
+    };
+    mediaRecorder.start();
+    document.getElementById('rec-btn').classList.add('recording');
+    document.getElementById('rec-status').textContent='RECORDING...';
+    recInterval=setInterval(()=>{recSeconds++;const m=Math.floor(recSeconds/60),s=recSeconds%60;document.getElementById('rec-timer').textContent=m+':'+(s<10?'0':'')+s},1000);
+  }catch(e){showToast('⚠ MICROPHONE ACCESS DENIED');console.error(e)}
+}
+function stopRec(){
+  if(!mediaRecorder)return;
+  mediaRecorder.stop();clearInterval(recInterval);
+  document.getElementById('rec-btn').classList.remove('recording');
+  document.getElementById('rec-btn').textContent='🎤';
+  document.getElementById('rec-status').textContent='TAP TO START RECORDING';
+  document.getElementById('rec-timer').textContent='0:00';
+  recSeconds=0;
+}
+async function delVoice(id){if(!fbReady||!confirm('Delete this voice note?'))return;await db.collection('diary_voice').doc(id).delete()}
+
+/* DIARY MEDIA UPLOAD */
+async function uploadDiaryMedia(input,type){
+  const f=input.files[0];if(!f)return;
+  if(!fbReady){showToast('⚠ FIREBASE NOT CONFIGURED');return}
+  showToast('UPLOADING TO DIARY...');
+  try{
+    const id=Date.now()+'_'+Math.random().toString(36).slice(2);
+    const coll=type==='dphoto'?'diary_photos':'diary_videos';
+    const ref=storage.ref(`diary/${type}/${id}`);
+    await ref.put(f);
+    const url=await ref.getDownloadURL();
+    await db.collection(coll).add({url,author:currentUser||'?',ts:Date.now()});
+    showToast('✓ ADDED TO DIARY');
+    input.value='';
+  }catch(e){showToast('⚠ UPLOAD FAILED');console.error(e)}
+}
+async function delDiaryMedia(coll,id){if(!fbReady||!confirm('Remove?'))return;await db.collection(coll).doc(id).delete()}
+
+/* DELTA TIMER */
+async function saveDeltaSettings(){
+  const title=document.getElementById('delta-title').value.trim();
+  const startDate=document.getElementById('delta-date').value;
+  const nextDate=document.getElementById('next-date').value;
+  if(!fbReady){if(startDate)startDeltaTimer(startDate,title);if(nextDate)startNextTimer(nextDate);return}
+  try{await db.collection('settings').doc('delta').set({title,startDate,nextDate},{merge:true})}catch(e){}
+  if(startDate)startDeltaTimer(startDate,title);
+  if(nextDate)startNextTimer(nextDate);
+}
+function startDeltaIfReady(){const v=document.getElementById('delta-date').value;if(v)startDeltaTimer(v,document.getElementById('delta-title').value)}
+function startDeltaTimer(dateStr,title){
+  clearInterval(deltaInterval);
+  if(!dateStr)return;
+  const start=new Date(dateStr);
+  document.getElementById('delta-display').style.display='block';
+  document.getElementById('delta-name-display').textContent=title||'OUR TIMELINE';
+  document.getElementById('delta-since-txt').textContent='since '+start.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  function tick(){
+    const diff=Date.now()-start.getTime();
+    if(diff<0){document.getElementById('delta-display').style.display='none';return}
+    const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    document.getElementById('d-days').textContent=d;document.getElementById('d-hrs').textContent=h;document.getElementById('d-min').textContent=m;document.getElementById('d-sec').textContent=s;
+  }tick();deltaInterval=setInterval(tick,1000);
+}
+function startNextTimer(dateStr){
+  if(!dateStr)return;
+  const end=new Date(dateStr);
+  document.getElementById('next-display').style.display='block';
+  function tick(){
+    const diff=end.getTime()-Date.now();
+    if(diff<0){document.getElementById('next-display').style.display='none';return}
+    const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    document.getElementById('n-days').textContent=d;document.getElementById('n-hrs').textContent=h;document.getElementById('n-min').textContent=m;document.getElementById('n-sec').textContent=s;
+  }tick();setInterval(tick,1000);
+}
+
+/* ═══════════════ HEART CANVAS ═══════════════ */
+let hL=null,hR=null,petals=[];
+function loadHCI(inp,side){const f=inp.files[0];if(!f)return;const img=new Image();img.onload=()=>{if(side==='L')hL=img;else hR=img;drawHeart()};img.src=URL.createObjectURL(f)}
+function initHeart(){
+  drawHeart();
+  document.getElementById('heartCanvas').addEventListener('click',e=>{
+    const c=document.getElementById('heartCanvas'),r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;
+    for(let i=0;i<10;i++)petals.push({x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy,vx:(Math.random()-.5)*3.5,vy:-Math.random()*3.8-1,s:Math.random()*13+5,a:1,rot:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.12,col:Math.random()>.5?'#ff2d78':'#00f0ff'});
+    animPetals();
+  });
+}
+let pAnim=false;
+function animPetals(){
+  if(pAnim)return;pAnim=true;const c=document.getElementById('heartCanvas');
+  (function step(){
+    drawHeart();const ctx=c.getContext('2d');
+    petals=petals.filter(p=>p.a>.01);
+    petals.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.09;p.a-=.013;p.rot+=p.rv;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=p.a;ctx.beginPath();const s=p.s*.5;ctx.moveTo(0,s*.5);ctx.bezierCurveTo(s,-s,s*2.5,s*.5,0,s*2);ctx.bezierCurveTo(-s*2.5,s*.5,-s,-s,0,s*.5);ctx.fillStyle=p.col;ctx.shadowBlur=7;ctx.shadowColor=p.col;ctx.fill();ctx.restore();ctx.globalAlpha=1});
+    if(petals.length>0)requestAnimationFrame(step);else pAnim=false;
+  })();
+}
+function hPath(ctx,cx,cy,sz){ctx.beginPath();for(let t=0;t<=Math.PI*2;t+=.015){const x=sz*16*Math.pow(Math.sin(t),3)/16;const y=-sz*(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))/16;t===0?ctx.moveTo(cx+x,cy+y):ctx.lineTo(cx+x,cy+y)}ctx.closePath()}
+function drawHeart(){
+  const c=document.getElementById('heartCanvas'),ctx=c.getContext('2d'),W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*.62);bg.addColorStop(0,'#090014');bg.addColorStop(1,'#03000a');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,240,255,.04)';ctx.lineWidth=1;
+  for(let i=0;i<W;i+=34){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke()}
+  for(let i=0;i<H;i+=34){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke()}
+  const cx=W/2,cy=H/2+8,sz=85;
+  hPath(ctx,cx,cy,sz);ctx.shadowBlur=32;ctx.shadowColor='#ff2d78';ctx.strokeStyle='rgba(255,45,120,.32)';ctx.lineWidth=2;ctx.stroke();
+  ctx.shadowBlur=16;ctx.shadowColor='#00f0ff';ctx.strokeStyle='rgba(0,240,255,.22)';ctx.lineWidth=1;ctx.stroke();ctx.shadowBlur=0;
+  ctx.save();hPath(ctx,cx,cy,sz);ctx.clip();
+  if(hL){ctx.save();ctx.beginPath();ctx.rect(0,0,W/2,H);ctx.clip();const sc=Math.max((sz*2)/hL.width,(sz*2)/hL.height);ctx.drawImage(hL,cx-hL.width*sc/2,cy-hL.height*sc/2,hL.width*sc,hL.height*sc);ctx.restore()}
+  else{ctx.save();ctx.beginPath();ctx.rect(0,0,W/2,H);ctx.clip();const g=ctx.createLinearGradient(0,0,W/2,H);g.addColorStop(0,'rgba(0,240,255,.09)');g.addColorStop(1,'rgba(255,45,120,.05)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.restore()}
+  if(hR){ctx.save();ctx.beginPath();ctx.rect(W/2,0,W/2,H);ctx.clip();const sc=Math.max((sz*2)/hR.width,(sz*2)/hR.height);ctx.drawImage(hR,cx-hR.width*sc/2,cy-hR.height*sc/2,hR.width*sc,hR.height*sc);ctx.restore()}
+  else{ctx.save();ctx.beginPath();ctx.rect(W/2,0,W/2,H);ctx.clip();const g=ctx.createLinearGradient(W/2,0,W,H);g.addColorStop(0,'rgba(255,45,120,.05)');g.addColorStop(1,'rgba(0,240,255,.09)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.restore()}
+  ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.restore();
+  ctx.save();ctx.translate(cx,cy);
+  for(let i=0;i<14;i++){const a=(i/14)*Math.PI*2,r=sz*.84,x=Math.cos(a)*r,y=Math.sin(a)*r;ctx.beginPath();ctx.arc(x,y,2.1,0,Math.PI*2);ctx.fillStyle=i%2===0?'rgba(255,45,120,.52)':'rgba(0,240,255,.52)';ctx.shadowBlur=5;ctx.shadowColor=i%2===0?'#ff2d78':'#00f0ff';ctx.fill()}
+  ctx.restore();ctx.shadowBlur=0;
+  ctx.font="bold 11px 'Cinzel',serif";ctx.textAlign='center';ctx.shadowBlur=7;ctx.fillStyle='rgba(255,255,255,.82)';
+  ctx.shadowColor='#00f0ff';ctx.fillText('FREDERICK',cx-42,cy+sz*.65+28);
+  ctx.shadowColor='#ff2d78';ctx.fillText('JANICE',cx+42,cy+sz*.65+28);ctx.shadowBlur=0;
+  hPath(ctx,cx,cy+sz*.62+20,12);ctx.fillStyle='#fff';ctx.shadowBlur=12;ctx.shadowColor='#ff2d78';ctx.fill();ctx.shadowBlur=0;
+  ctx.font="italic 13px 'Dancing Script',cursive";ctx.textAlign='center';ctx.fillStyle='rgba(255,143,171,.55)';ctx.fillText('"love.png"',W/2,32);
+  ctx.font="8px 'Share Tech Mono',monospace";ctx.fillStyle='rgba(0,240,255,.22)';ctx.fillText('CLICK TO RELEASE PETALS  ·  UPLOAD PHOTOS TO FILL',W/2,H-14);
+}
+function saveLove(){drawHeart();const c=document.getElementById('heartCanvas'),a=document.createElement('a');a.download='love.png';a.href=c.toDataURL('image/png');a.click();showToast('LOVE.PNG SAVED ♥')}
+
+/* ═══════════════ HELPERS ═══════════════ */
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function fmtTime(ts){if(!ts)return '';return new Date(ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+</script>
+</body>
+</html>
